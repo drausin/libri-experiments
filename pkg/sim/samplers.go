@@ -11,9 +11,12 @@ import (
 	"crypto/ecdsa"
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/author/keychain"
-	"io/ioutil"
 	"net"
 	"github.com/drausin/libri/libri/common/logging"
+)
+
+const (
+	nInitialKeys = 8
 )
 
 type directory interface {
@@ -28,27 +31,27 @@ type directoryImpl struct {
 	rng        *rand.Rand
 }
 
-func newDirectory(rng *rand.Rand, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string) *directoryImpl {
-	dataDir, err := ioutil.TempDir("", "sim-data-dir")
-	maybePanic(err)
+func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string) *directoryImpl {
 	authors := make([]*author.Author, nAuthors)
 	keys := make([]keychain.GetterSampler, nAuthors)
 	logger := server.NewDevLogger(server.GetLogLevel(logLevelStr))
-	for i, config := range newAuthorConfigs(dataDir, librarianAddrs, nAuthors, logLevelStr) {
 
-		// create keychains
-		err := author.CreateKeychains(logger, config.KeychainDir, authorKeychainAuth,
-			veryLightScryptN, veryLightScryptP)
-		maybePanic(err)
+	configs := newAuthorConfigs(dataDir, librarianAddrs, nAuthors, logLevelStr)
+	nWorkers := 8
+	for c := 0; c < nWorkers; c++ {
+		go func(d int) {
+			for i := d; i < len(configs); i += nWorkers {
+				// create keychains
+				authorKC := keychain.New(nInitialKeys)
+				selfReaderKC := keychain.New(nInitialKeys)
+				keys[i] = authorKC
 
-		// load keychains
-		authorKCs, selfReaderKCs, err := author.LoadKeychains(config.KeychainDir, authorKeychainAuth)
-		maybePanic(err)
-		keys[i] = authorKCs
-
-		// create author
-		authors[i], err = author.NewAuthor(config, authorKCs, selfReaderKCs, logger)
-		maybePanic(err)
+				// create author
+				var err error
+				authors[i], err = author.NewAuthor(configs[i], authorKC, selfReaderKC, logger)
+				maybePanic(err)
+			}
+		}(c)
 	}
 	return &directoryImpl{
 		authors:    authors,
@@ -88,6 +91,23 @@ func (s *uniformDurationSampler) sample() time.Duration {
 	return s.min + time.Duration(s.rng.Float32()*float32(s.max-s.min))
 }
 
+type exponentialDurationSampler struct {
+	innerMS *distuv.Exponential
+}
+
+func newExponentialDurationSampler(rng *rand.Rand, meanMS float64) durationSampler {
+	return &exponentialDurationSampler{
+		innerMS: &distuv.Exponential{
+			Rate:   1 / meanMS, // mean = 1 / rate
+			Source: erand.New(erand.NewSource(rng.Uint64())),
+		},
+	}
+}
+
+func (s *exponentialDurationSampler) sample() time.Duration {
+	return time.Duration(int64(s.innerMS.Rand()) * 1e6) // sample duration in milliseconds
+}
+
 type uploadEventSampler interface {
 	sample() *uploadEvent
 }
@@ -122,22 +142,11 @@ type gammaContentSampler struct {
 	rng         *rand.Rand
 }
 
-func newGammaContentSampler(rng *rand.Rand, sizeMean uint, sizeVar uint) *gammaContentSampler {
-	// let x ~ Gamma(α, β) parameterized by shape α and rate β
-	//
-	// 	E[x] = α / β
-	// 	Var[x] = α / β^2
-	//
-	// with some algebra, we get
-	//
-	// 	α = E[x]^2 / Var[x]
-	//  β = E[x] / Var[x]
-	beta := float64(sizeMean) / float64(sizeVar)
-	alpha := float64(sizeMean) * beta
+func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaContentSampler {
 	return &gammaContentSampler{
 		sizeSampler: &distuv.Gamma{
-			Alpha:  alpha,
-			Beta:   beta,
+			Alpha:  shape,
+			Beta:   rate,
 			Source: erand.New(erand.NewSource(rng.Uint64())),
 		},
 		rng: rng,
@@ -145,7 +154,7 @@ func newGammaContentSampler(rng *rand.Rand, sizeMean uint, sizeVar uint) *gammaC
 }
 
 func (s *gammaContentSampler) sample() io.Reader {
-	size := int(s.sizeSampler.Rand())
+	size := int(s.sizeSampler.Rand() * 1024)
 	content := make([]byte, size)
 	for c := 0; c < 3; c++ {
 		if n, err := s.rng.Read(content); err != nil {

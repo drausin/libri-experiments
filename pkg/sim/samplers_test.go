@@ -7,13 +7,33 @@ import (
 	"crypto/ecdsa"
 	"github.com/drausin/libri/libri/common/ecid"
 	"github.com/stretchr/testify/assert"
+	"net"
+	"io/ioutil"
+	"os"
 )
+
+func TestDirectoryImplSampleGet(t *testing.T) {
+	rng := rand.New(rand.NewSource(0))
+	librarianAddrs := []*net.TCPAddr{{IP: net.ParseIP("192.168.1.1"), Port: 20100}}
+	dataDir, err := ioutil.TempDir("", "sim-data-dir")
+	defer os.RemoveAll(dataDir)
+	assert.Nil(t, err)
+	nAuthors := uint(3)
+	d := newDirectory(rng, dataDir, librarianAddrs, nAuthors, "info")
+
+	// check sample behaves as expected
+	a1, pubKey := d.sample()
+	assert.NotNil(t, a1)
+	assert.NotNil(t, pubKey)
+
+	// check get returns author equal to a1
+	a2 := d.get(pubKey)
+	assert.Equal(t, a1, a2)
+}
 
 func TestUploadEventSamplerImplSample(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
 	nSharesPerUpload := uint(2)
-	sizeMean := uint(250 * 1024)                 // 250K
-	sizeVar := uint((100 * 1024) * (100 * 1024)) // 100K std-dev
 	d := &fixedDirectory{
 		rng:          rng,
 		returnAuthor: &author.Author{},
@@ -21,7 +41,7 @@ func TestUploadEventSamplerImplSample(t *testing.T) {
 
 	s := uploadEventSamplerImpl{
 		nSharesPerUpload: nSharesPerUpload,
-		content:          newGammaContentSampler(rng, sizeMean, sizeVar),
+		content:          newGammaContentSampler(rng, defaultContentSizeKBGammaShape, defaultContentSizeKBGammaRate),
 		authors:          d,
 	}
 	e := s.sample()

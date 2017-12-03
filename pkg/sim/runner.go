@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/drausin/libri/libri/author"
-	"github.com/drausin/libri/libri/common/ecid"
 	"github.com/drausin/libri/libri/common/id"
 	"go.uber.org/zap"
 	"github.com/drausin/libri/libri/common/logging"
@@ -23,26 +22,54 @@ import (
 )
 
 const (
-	toUploadSlack      = 16
-	toDownloadSlack    = 16
-	contentMediaType   = "application/x-gzip" // so we don't try to compress
-	veryLightScryptN   = 2
-	veryLightScryptP   = 1
-	authorKeychainAuth = "sim author passphrase"
+	toUploadSlack    = 16
+	toDownloadSlack  = 16
+	contentMediaType = "application/x-gzip" // so we don't try to compress
+
+	defaultDuration   = 1 * time.Hour
+	defaultNAuthors   = uint(1000)
+	defaultDocsPerDay = uint(1)
+
+	// units are in KB, so this distribution has a mean of ~256 KB and a 95% CI of [~18, ~794] KB
+	defaultContentSizeKBGammaShape = float64(1.5)
+	defaultContentSizeKBGammaRate  = 1.0 / float64(170) // 1 / scale
+
+	defaultSharesPerUpload = uint(2)
+	defaultDownloadWaitMin = 2 * time.Second
+	defaultDownloadWaitMax = 10 * time.Second
+	defaultNUploaders      = 3
+	defaultNDownloaders    = defaultNUploaders * defaultSharesPerUpload
+	defaultLogLevel        = "INFO"
 )
 
 type Parameters struct {
-	Duration             time.Duration
-	NAuthors             uint
-	DocsPerDay           uint
-	ContentSizeGammaMean uint
-	ContentSizeGammaVar  uint
-	SharesPerUpload      uint
-	ShareWaitMin         time.Duration
-	ShareWaitMax         time.Duration
-	NUploaders           uint
-	NDownloaders         uint
-	LogLevel             string
+	Duration                time.Duration
+	NAuthors                uint
+	DocsPerDay              uint
+	ContentSizeKBGammaShape float64
+	ContentSizeKBGammaRate  float64
+	SharesPerUpload         uint
+	DownloadWaitMin         time.Duration
+	DownloadWaitMax         time.Duration
+	NUploaders              uint
+	NDownloaders            uint
+	LogLevel                string
+}
+
+func NewDefaultParameters() *Parameters {
+	return &Parameters{
+		Duration:                defaultDuration,
+		NAuthors:                defaultNAuthors,
+		DocsPerDay:              defaultDocsPerDay,
+		ContentSizeKBGammaShape: defaultContentSizeKBGammaShape,
+		ContentSizeKBGammaRate:  defaultContentSizeKBGammaRate,
+		SharesPerUpload:         defaultSharesPerUpload,
+		DownloadWaitMin:         defaultDownloadWaitMin,
+		DownloadWaitMax:         defaultDownloadWaitMax,
+		NUploaders:              defaultNUploaders,
+		NDownloaders:            defaultNDownloaders,
+		LogLevel:                defaultLogLevel,
+	}
 }
 
 type uploadEvent struct {
@@ -57,39 +84,46 @@ type downloadEvent struct {
 }
 
 type runner struct {
-	params          *Parameters
-	privDir         directory
-	nextUploadWaits durationSampler
-	upDocs          uploadEventSampler
-	toUpload        chan *uploadEvent
-	toDownload      chan *downloadEvent
-	done            chan struct{}
-	mu              sync.Mutex
-	logger          *zap.Logger
+	params         *Parameters
+	authors        directory
+	nextUploadWait durationSampler
+	downloadWait   durationSampler
+	upDocs         uploadEventSampler
+	querier        querier
+	toUpload       chan *uploadEvent
+	toDownload     chan *downloadEvent
+	done           chan struct{}
+	mu             sync.Mutex
+	logger         *zap.Logger
 }
 
-func NewRunner(params *Parameters, librarianAddrs []*net.TCPAddr) *runner {
+func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr) *runner {
 	rng := rand.New(rand.NewSource(0))
-
-	nextUploadWaits := &uniformDurationSampler{
-		min: params.ShareWaitMin,
-		max: params.ShareWaitMax,
+	downloadWait := &uniformDurationSampler{
+		min: params.DownloadWaitMin,
+		max: params.DownloadWaitMax,
 		rng: rng,
 	}
+	authors := newDirectory(rng, dataDir, librarianAddrs, params.NAuthors, params.LogLevel)
 	upDocs := &uploadEventSamplerImpl{
+		authors:          authors,
 		nSharesPerUpload: params.SharesPerUpload,
-		content:          newGammaContentSampler(rng, params.ContentSizeGammaMean, params.ContentSizeGammaVar),
+		content:          newGammaContentSampler(rng, params.ContentSizeKBGammaShape, params.ContentSizeKBGammaRate),
 	}
-	privDir := newDirectory(rng, librarianAddrs, params.NAuthors, params.LogLevel)
+	uploadsPerSecond := float64(params.NAuthors) * float64(params.DocsPerDay) / (24 * 3600)
+	uploadWaitMS := 1000 / uploadsPerSecond
+
 	return &runner{
-		params:          params,
-		privDir:         privDir,
-		nextUploadWaits: nextUploadWaits,
-		upDocs:          upDocs,
-		toUpload:        make(chan *uploadEvent, toUploadSlack),
-		toDownload:      make(chan *downloadEvent, toDownloadSlack),
-		done:            make(chan struct{}),
-		logger:          newDevLogger(getLogLevel(params.LogLevel)),
+		params:         params,
+		authors:        authors,
+		nextUploadWait: newExponentialDurationSampler(rng, uploadWaitMS),
+		downloadWait:   downloadWait,
+		upDocs:         upDocs,
+		querier:        &querierImpl{},
+		toUpload:       make(chan *uploadEvent, toUploadSlack),
+		toDownload:     make(chan *downloadEvent, toDownloadSlack),
+		done:           make(chan struct{}),
+		logger:         newDevLogger(getLogLevel(params.LogLevel)),
 	}
 }
 
@@ -99,11 +133,13 @@ func (r *runner) Run() {
 
 	go func() {
 		<-stopSignals
-		r.Stop()
+		r.logger.Info("received external stop signal")
+		r.stop()
 	}()
 	go func() {
 		time.Sleep(r.params.Duration)
-		r.Stop()
+		r.logger.Info("finished experiment duration")
+		r.stop()
 	}()
 
 	// generate upload events
@@ -130,7 +166,7 @@ func (r *runner) Run() {
 	downWG.Wait()
 }
 
-func (r *runner) Stop() {
+func (r *runner) stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	select {
@@ -147,7 +183,7 @@ func (r *runner) generateUploads() {
 		case <-r.done:
 			done = true
 		default:
-			wait := r.nextUploadWaits.sample()
+			wait := r.nextUploadWait.sample()
 			r.logger.Debug("waiting to upload", zap.Duration("wait_time", wait))
 			time.Sleep(wait)
 			r.toUpload <- r.upDocs.sample()
@@ -159,17 +195,27 @@ func (r *runner) generateUploads() {
 func (r *runner) doUploads(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for uploadEvent := range r.toUpload {
-		// TODO (drausin) add and log timer
-		_, envKey, err := uploadEvent.from.Upload(uploadEvent.content, contentMediaType)
-		if err != nil {
-			r.logger.Info("upload errored", zap.Error(err))
-			continue
-		}
-		r.logger.Info("upload succeeded")
-		for _, withPub := range uploadEvent.shareWith {
-			r.toDownload <- &downloadEvent{
-				to:     r.privDir.get(withPub),
-				envKey: envKey,
+		select {
+		case <-r.done:
+			return
+		default:
+			// TODO (drausin) add and log timer, speed
+			envKey, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
+			if err != nil {
+				r.logger.Info("upload errored", zap.Error(err))
+				continue
+			}
+			r.logger.Info("upload succeeded")
+			for _, withPub := range uploadEvent.shareWith {
+				shareEnvKey, err := r.querier.share(uploadEvent.from, envKey, withPub)
+				if err != nil {
+					r.logger.Info("share errored", zap.Error(err))
+					continue
+				}
+				r.toDownload <- &downloadEvent{
+					to:     r.authors.get(withPub),
+					envKey: shareEnvKey,
+				}
 			}
 		}
 	}
@@ -178,18 +224,49 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 func (r *runner) doDownloads(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for downloadEvent := range r.toDownload {
-		downloaded := new(bytes.Buffer)
-		// TODO (drausin) add and log timer
-		if err := downloadEvent.to.Download(downloaded, downloadEvent.envKey); err != nil {
-			r.logger.Info("download errored", zap.Error(err))
-			continue
+		select {
+		case <-r.done:
+			return
+		default:
+			wait := r.downloadWait.sample()
+			r.logger.Debug("waiting to download", zap.Duration("wait_time", wait))
+			time.Sleep(wait)
+			downloaded := new(bytes.Buffer)
+			// TODO (drausin) add and log timer, speed
+			if err := r.querier.download(downloadEvent.to, downloaded, downloadEvent.envKey); err != nil {
+				r.logger.Info("download errored", zap.Error(err))
+				continue
+			}
+			r.logger.Info("download succeeded")
 		}
-		r.logger.Info("download succeeded")
 	}
 }
 
+// thin wrapper around author functions so they're easy to mock
+type querier interface {
+	upload(author *author.Author, content io.Reader) (id.ID, error)
+	download(author *author.Author, content io.Writer, envKey id.ID) error
+	share(author *author.Author, envKey id.ID, readerPub *ecdsa.PublicKey) (id.ID, error)
+}
+
+type querierImpl struct{}
+
+func (q *querierImpl) upload(author *author.Author, content io.Reader) (id.ID, error) {
+	_, envKey, err := author.Upload(content, contentMediaType)
+	return envKey, err
+}
+
+func (q *querierImpl) download(author *author.Author, content io.Writer, envKey id.ID) error {
+	return author.Download(content, envKey)
+}
+
+func (q *querierImpl) share(author *author.Author, envKey id.ID, readerPub *ecdsa.PublicKey) (id.ID, error) {
+	_, shareEnvKey, err := author.Share(envKey, readerPub)
+	return shareEnvKey, err
+}
+
 func pubKeyHex(pubKey *ecdsa.PublicKey) string {
-	return fmt.Sprintf("%0130x", ecid.ToPublicKeyBytes(pubKey))
+	return id.Hex(pubKey.X.Bytes())
 }
 
 func getLogLevel(logLevelStr string) zapcore.Level {
@@ -199,8 +276,6 @@ func getLogLevel(logLevelStr string) zapcore.Level {
 	return logLevel
 }
 
-// NewDevLogger creates a new logger with a given log level for use in development (i.e., not
-// production).
 func newDevLogger(logLevel zapcore.Level) *zap.Logger {
 	config := zap.NewDevelopmentConfig()
 	config.DisableCaller = true
