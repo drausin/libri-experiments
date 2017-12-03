@@ -6,13 +6,13 @@ import (
 	"gonum.org/v1/gonum/stat/distuv"
 	erand "golang.org/x/exp/rand"
 	"fmt"
-	"io"
 	"bytes"
 	"crypto/ecdsa"
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/author/keychain"
 	"net"
 	"github.com/drausin/libri/libri/common/logging"
+	"sync"
 )
 
 const (
@@ -38,8 +38,11 @@ func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr,
 
 	configs := newAuthorConfigs(dataDir, librarianAddrs, nAuthors, logLevelStr)
 	nWorkers := 8
+	wg1 := new(sync.WaitGroup)
+	wg1.Add(nWorkers)
 	for c := 0; c < nWorkers; c++ {
-		go func(d int) {
+		go func(d int, wg2 *sync.WaitGroup) {
+			defer wg2.Done()
 			for i := d; i < len(configs); i += nWorkers {
 				// create keychains
 				authorKC := keychain.New(nInitialKeys)
@@ -51,8 +54,9 @@ func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr,
 				authors[i], err = author.NewAuthor(configs[i], authorKC, selfReaderKC, logger)
 				maybePanic(err)
 			}
-		}(c)
+		}(c, wg1)
 	}
+	wg1.Wait()
 	return &directoryImpl{
 		authors:    authors,
 		keys:       keys,
@@ -134,7 +138,7 @@ func (s *uploadEventSamplerImpl) sample() *uploadEvent {
 }
 
 type contentSampler interface {
-	sample() io.Reader
+	sample() *bytes.Buffer
 }
 
 type gammaContentSampler struct {
@@ -153,7 +157,7 @@ func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaC
 	}
 }
 
-func (s *gammaContentSampler) sample() io.Reader {
+func (s *gammaContentSampler) sample() *bytes.Buffer {
 	size := int(s.sizeSampler.Rand() * 1024)
 	content := make([]byte, size)
 	for c := 0; c < 3; c++ {

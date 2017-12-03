@@ -73,7 +73,7 @@ func NewDefaultParameters() *Parameters {
 }
 
 type uploadEvent struct {
-	content   io.Reader
+	content   *bytes.Buffer
 	from      *author.Author
 	shareWith []*ecdsa.PublicKey
 }
@@ -184,7 +184,7 @@ func (r *runner) generateUploads() {
 			done = true
 		default:
 			wait := r.nextUploadWait.sample()
-			r.logger.Debug("waiting to upload", zap.Duration("wait_time", wait))
+			r.logger.Debug("waiting for next upload", zap.Duration("wait_time", wait))
 			time.Sleep(wait)
 			r.toUpload <- r.upDocs.sample()
 		}
@@ -199,13 +199,25 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 		case <-r.done:
 			return
 		default:
-			// TODO (drausin) add and log timer, speed
+			r.logger.Debug("uploading",
+				zap.Int("content_size_kb", uploadEvent.content.Len() / 1024),
+				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
+			)
+			start := time.Now()
 			envKey, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
+			elapsed := time.Now().Sub(start)
 			if err != nil {
 				r.logger.Info("upload errored", zap.Error(err))
 				continue
 			}
-			r.logger.Info("upload succeeded")
+			contentSize := uploadEvent.content.Len()
+			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
+			r.logger.Info("upload succeeded",
+				zap.Int("content_size_kb", uploadEvent.content.Len() / 1024),
+				zap.Duration("time", elapsed),
+				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
+				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
+			)
 			for _, withPub := range uploadEvent.shareWith {
 				shareEnvKey, err := r.querier.share(uploadEvent.from, envKey, withPub)
 				if err != nil {
@@ -232,12 +244,23 @@ func (r *runner) doDownloads(wg *sync.WaitGroup) {
 			r.logger.Debug("waiting to download", zap.Duration("wait_time", wait))
 			time.Sleep(wait)
 			downloaded := new(bytes.Buffer)
-			// TODO (drausin) add and log timer, speed
+			r.logger.Debug("downloading",
+				zap.String("author_id", downloadEvent.to.ClientID.ID().String()),
+			)
+			start := time.Now()
 			if err := r.querier.download(downloadEvent.to, downloaded, downloadEvent.envKey); err != nil {
 				r.logger.Info("download errored", zap.Error(err))
 				continue
 			}
-			r.logger.Info("download succeeded")
+			elapsed := time.Now().Sub(start)
+			contentSize := downloaded.Len()
+			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
+			r.logger.Info("download succeeded",
+				zap.Int("content_size_kb", downloaded.Len() / 1024),
+				zap.Duration("time", elapsed),
+				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
+				zap.String("author_id", downloadEvent.to.ClientID.ID().String()),
+			)
 		}
 	}
 }
