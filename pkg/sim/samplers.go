@@ -29,6 +29,7 @@ type directoryImpl struct {
 	keys       []keychain.GetterSampler
 	authorPubs map[string]*author.Author
 	rng        *rand.Rand
+	mu         sync.Mutex
 }
 
 func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string) *directoryImpl {
@@ -67,17 +68,23 @@ func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr,
 
 func (s *directoryImpl) sample() (*author.Author, *ecdsa.PublicKey) {
 	nAuthors := len(s.authors)
+	s.mu.Lock()
 	i := s.rng.Int31n(int32(nAuthors))
+	s.mu.Unlock()
 	auth := s.authors[i]
 	authorKey, err := s.keys[i].Sample()
 	maybePanic(err) // should never happen
 	authorPubKey := &authorKey.Key().PublicKey
 	authorKeyHex := pubKeyHex(authorPubKey)
+	s.mu.Lock()
 	s.authorPubs[authorKeyHex] = auth
+	s.mu.Unlock()
 	return auth, authorPubKey
 }
 
 func (s *directoryImpl) get(key *ecdsa.PublicKey) *author.Author {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.authorPubs[pubKeyHex(key)]
 }
 
@@ -89,9 +96,12 @@ type uniformDurationSampler struct {
 	min time.Duration
 	max time.Duration
 	rng *rand.Rand
+	mu  sync.Mutex
 }
 
 func (s *uniformDurationSampler) sample() time.Duration {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.min + time.Duration(s.rng.Float32()*float32(s.max-s.min))
 }
 
@@ -144,6 +154,7 @@ type contentSampler interface {
 type gammaContentSampler struct {
 	sizeSampler *distuv.Gamma
 	rng         *rand.Rand
+	mu               sync.Mutex
 }
 
 func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaContentSampler {
@@ -158,6 +169,8 @@ func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaC
 }
 
 func (s *gammaContentSampler) sample() *bytes.Buffer {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	size := int(s.sizeSampler.Rand() * 1024)
 	content := make([]byte, size)
 	for c := 0; c < 3; c++ {

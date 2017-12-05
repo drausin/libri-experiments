@@ -12,6 +12,8 @@ import (
 	"net"
 	"time"
 	"crypto/ecdsa"
+	"sync"
+	"github.com/drausin/libri/libri/librarian/api"
 )
 
 func TestRunner_RunStop(t *testing.T) {
@@ -36,16 +38,23 @@ func TestRunner_RunStop(t *testing.T) {
 
 type fixedQuerier struct {
 	uploaded map[string]io.Reader
+	mu sync.Mutex
 	rng      *rand.Rand
 }
 
-func (f *fixedQuerier) upload(author *author.Author, content io.Reader) (id.ID, error) {
-	envKey := id.NewPseudoRandom(f.rng)
+func (f *fixedQuerier) upload(author *author.Author, content io.Reader) (*api.Envelope, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	env := api.NewTestEnvelope(f.rng)
+	envKey, err := api.GetKey(env)
+	maybePanic(err)
 	f.uploaded[envKey.String()] = content
-	return envKey, nil
+	return env, nil
 }
 
 func (f *fixedQuerier) download(author *author.Author, content io.Writer, envKey id.ID) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	if upContent, in := f.uploaded[envKey.String()]; in {
 		_, err := io.Copy(content, upContent)
 		return err
@@ -53,7 +62,11 @@ func (f *fixedQuerier) download(author *author.Author, content io.Writer, envKey
 	return nil
 }
 
-func (f *fixedQuerier) share(author *author.Author, envKey id.ID, readerPub *ecdsa.PublicKey) (id.ID, error) {
+func (f *fixedQuerier) share(author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey) (id.ID, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	envKey, err := api.GetKey(env)
+	maybePanic(err)
 	shareEnvKey := id.NewPseudoRandom(f.rng)
 	f.uploaded[shareEnvKey.String()] = f.uploaded[envKey.String()]
 	return shareEnvKey, nil

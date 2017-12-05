@@ -19,6 +19,7 @@ import (
 	"go.uber.org/zap"
 	"github.com/drausin/libri/libri/common/logging"
 	"go.uber.org/zap/zapcore"
+	"github.com/drausin/libri/libri/librarian/api"
 )
 
 const (
@@ -98,17 +99,21 @@ type runner struct {
 }
 
 func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr) *runner {
-	rng := rand.New(rand.NewSource(0))
 	downloadWait := &uniformDurationSampler{
 		min: params.DownloadWaitMin,
 		max: params.DownloadWaitMax,
-		rng: rng,
+		rng: rand.New(rand.NewSource(0)),
 	}
-	authors := newDirectory(rng, dataDir, librarianAddrs, params.NAuthors, params.LogLevel)
+	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors, params.LogLevel)
+	docSizeSampler := newGammaContentSampler(
+		rand.New(rand.NewSource(0)),
+		params.ContentSizeKBGammaShape,
+		params.ContentSizeKBGammaRate,
+	)
 	upDocs := &uploadEventSamplerImpl{
 		authors:          authors,
 		nSharesPerUpload: params.SharesPerUpload,
-		content:          newGammaContentSampler(rng, params.ContentSizeKBGammaShape, params.ContentSizeKBGammaRate),
+		content:          docSizeSampler,
 	}
 	uploadsPerSecond := float64(params.NAuthors) * float64(params.DocsPerDay) / (24 * 3600)
 	uploadWaitMS := 1000 / uploadsPerSecond
@@ -116,7 +121,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 	return &runner{
 		params:         params,
 		authors:        authors,
-		nextUploadWait: newExponentialDurationSampler(rng, uploadWaitMS),
+		nextUploadWait: newExponentialDurationSampler(rand.New(rand.NewSource(0)), uploadWaitMS),
 		downloadWait:   downloadWait,
 		upDocs:         upDocs,
 		querier:        &querierImpl{},
@@ -204,7 +209,7 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
 			)
 			start := time.Now()
-			envKey, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
+			env, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
 			elapsed := time.Now().Sub(start)
 			if err != nil {
 				r.logger.Info("upload errored", zap.Error(err))
@@ -219,7 +224,7 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
 			)
 			for _, withPub := range uploadEvent.shareWith {
-				shareEnvKey, err := r.querier.share(uploadEvent.from, envKey, withPub)
+				shareEnvKey, err := r.querier.share(uploadEvent.from, env, withPub)
 				if err != nil {
 					r.logger.Info("share errored", zap.Error(err))
 					continue
@@ -267,24 +272,24 @@ func (r *runner) doDownloads(wg *sync.WaitGroup) {
 
 // thin wrapper around author functions so they're easy to mock
 type querier interface {
-	upload(author *author.Author, content io.Reader) (id.ID, error)
+	upload(author *author.Author, content io.Reader) (*api.Envelope, error)
 	download(author *author.Author, content io.Writer, envKey id.ID) error
-	share(author *author.Author, envKey id.ID, readerPub *ecdsa.PublicKey) (id.ID, error)
+	share(author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey) (id.ID, error)
 }
 
 type querierImpl struct{}
 
-func (q *querierImpl) upload(author *author.Author, content io.Reader) (id.ID, error) {
-	_, envKey, err := author.Upload(content, contentMediaType)
-	return envKey, err
+func (q *querierImpl) upload(author *author.Author, content io.Reader) (*api.Envelope, error) {
+	envDoc, _, err := author.Upload(content, contentMediaType)
+	return envDoc.GetEnvelope(), err
 }
 
 func (q *querierImpl) download(author *author.Author, content io.Writer, envKey id.ID) error {
 	return author.Download(content, envKey)
 }
 
-func (q *querierImpl) share(author *author.Author, envKey id.ID, readerPub *ecdsa.PublicKey) (id.ID, error) {
-	_, shareEnvKey, err := author.Share(envKey, readerPub)
+func (q *querierImpl) share(author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey) (id.ID, error) {
+	_, shareEnvKey, err := author.ShareEnvelope(env, readerPub)
 	return shareEnvKey, err
 }
 
