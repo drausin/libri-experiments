@@ -16,10 +16,10 @@ import (
 
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/common/id"
-	"go.uber.org/zap"
 	"github.com/drausin/libri/libri/common/logging"
-	"go.uber.org/zap/zapcore"
 	"github.com/drausin/libri/libri/librarian/api"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -27,22 +27,44 @@ const (
 	toDownloadSlack  = 16
 	contentMediaType = "application/x-gzip" // so we don't try to compress
 
-	defaultDuration   = 1 * time.Hour
-	defaultNAuthors   = uint(1000)
-	defaultDocsPerDay = uint(1)
+	// DefaultDuration is the default time for the experiment to run
+	DefaultDuration = 1 * time.Hour
 
-	// units are in KB, so this distribution has a mean of ~256 KB and a 95% CI of [~18, ~794] KB
-	defaultContentSizeKBGammaShape = float64(1.5)
-	defaultContentSizeKBGammaRate  = 1.0 / float64(170) // 1 / scale
+	// DefaultNAuthors is the default number of authors to use in the experiment.
+	DefaultNAuthors = uint(1000)
 
-	defaultSharesPerUpload = uint(2)
-	defaultDownloadWaitMin = 2 * time.Second
-	defaultDownloadWaitMax = 10 * time.Second
-	defaultNUploaders      = 3
-	defaultNDownloaders    = defaultNUploaders * defaultSharesPerUpload
-	defaultLogLevel        = "INFO"
+	// DefaultDocsPerDay is the default number of documents to assume each author uploads per day.
+	DefaultDocsPerDay = uint(1)
+
+	// DefaultContentSizeKBGammaShape is the gamma distribution shape parameter for the content
+	// size (in KB); this shape and rate imply a mean of ~256 KB and a 95% CI of [~18, ~794] KB.
+	DefaultContentSizeKBGammaShape = float64(1.5)
+
+	// DefaultContentSizeKBGammaRate is the gamma distribution rate parameter.
+	DefaultContentSizeKBGammaRate = 1.0 / float64(170) // 1 / scale
+
+	// DefaultSharesPerUpload is the default number of times each uploaded document is shared.
+	DefaultSharesPerUpload = uint(2)
+
+	// DefaultDownloadWaitMin is the default lower bound on the uniform distribution on time to
+	// wait before downloading document.
+	DefaultDownloadWaitMin = 2 * time.Second
+
+	// DefaultDownloadWaitMax is the default upper bound on the uniform distribution on time to
+	// wait before downloading document.
+	DefaultDownloadWaitMax = 10 * time.Second
+
+	// DefaultNUploaders is the default number of uploader workers to use.
+	DefaultNUploaders = 3
+
+	// DefaultNDownloaders is the default number of downloader workers to use.
+	DefaultNDownloaders = DefaultNUploaders * DefaultSharesPerUpload
+
+	// DefaultLogLevel is the default log level.
+	DefaultLogLevel = "INFO"
 )
 
+// Parameters contains the parameters that define the experiment.
 type Parameters struct {
 	Duration                time.Duration
 	NAuthors                uint
@@ -57,19 +79,19 @@ type Parameters struct {
 	LogLevel                string
 }
 
-func NewDefaultParameters() *Parameters {
+func newDefaultParameters() *Parameters {
 	return &Parameters{
-		Duration:                defaultDuration,
-		NAuthors:                defaultNAuthors,
-		DocsPerDay:              defaultDocsPerDay,
-		ContentSizeKBGammaShape: defaultContentSizeKBGammaShape,
-		ContentSizeKBGammaRate:  defaultContentSizeKBGammaRate,
-		SharesPerUpload:         defaultSharesPerUpload,
-		DownloadWaitMin:         defaultDownloadWaitMin,
-		DownloadWaitMax:         defaultDownloadWaitMax,
-		NUploaders:              defaultNUploaders,
-		NDownloaders:            defaultNDownloaders,
-		LogLevel:                defaultLogLevel,
+		Duration:                DefaultDuration,
+		NAuthors:                DefaultNAuthors,
+		DocsPerDay:              DefaultDocsPerDay,
+		ContentSizeKBGammaShape: DefaultContentSizeKBGammaShape,
+		ContentSizeKBGammaRate:  DefaultContentSizeKBGammaRate,
+		SharesPerUpload:         DefaultSharesPerUpload,
+		DownloadWaitMin:         DefaultDownloadWaitMin,
+		DownloadWaitMax:         DefaultDownloadWaitMax,
+		NUploaders:              DefaultNUploaders,
+		NDownloaders:            DefaultNDownloaders,
+		LogLevel:                DefaultLogLevel,
 	}
 }
 
@@ -84,7 +106,7 @@ type downloadEvent struct {
 	envKey id.ID
 }
 
-type runner struct {
+type Runner struct {
 	params         *Parameters
 	authors        directory
 	nextUploadWait durationSampler
@@ -98,13 +120,15 @@ type runner struct {
 	logger         *zap.Logger
 }
 
-func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr) *runner {
+// NewRunner creates a new experiment Runner.
+func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr) *Runner {
 	downloadWait := &uniformDurationSampler{
 		min: params.DownloadWaitMin,
 		max: params.DownloadWaitMax,
 		rng: rand.New(rand.NewSource(0)),
 	}
-	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors, params.LogLevel)
+	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors,
+		params.LogLevel)
 	docSizeSampler := newGammaContentSampler(
 		rand.New(rand.NewSource(0)),
 		params.ContentSizeKBGammaShape,
@@ -118,7 +142,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 	uploadsPerSecond := float64(params.NAuthors) * float64(params.DocsPerDay) / (24 * 3600)
 	uploadWaitMS := 1000 / uploadsPerSecond
 
-	return &runner{
+	return &Runner{
 		params:         params,
 		authors:        authors,
 		nextUploadWait: newExponentialDurationSampler(rand.New(rand.NewSource(0)), uploadWaitMS),
@@ -132,7 +156,8 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 	}
 }
 
-func (r *runner) Run() {
+// Run begins the experiment.
+func (r *Runner) Run() {
 	stopSignals := make(chan os.Signal, 3)
 	signal.Notify(stopSignals, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
@@ -171,7 +196,7 @@ func (r *runner) Run() {
 	downWG.Wait()
 }
 
-func (r *runner) stop() {
+func (r *Runner) stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	select {
@@ -181,7 +206,7 @@ func (r *runner) stop() {
 	}
 }
 
-func (r *runner) generateUploads() {
+func (r *Runner) generateUploads() {
 	done := false
 	for !done {
 		select {
@@ -197,7 +222,7 @@ func (r *runner) generateUploads() {
 	close(r.toUpload)
 }
 
-func (r *runner) doUploads(wg *sync.WaitGroup) {
+func (r *Runner) doUploads(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for uploadEvent := range r.toUpload {
 		select {
@@ -205,12 +230,12 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 			return
 		default:
 			r.logger.Debug("uploading",
-				zap.Int("content_size_kb", uploadEvent.content.Len() / 1024),
+				zap.Int("content_size_kb", uploadEvent.content.Len()/1024),
 				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
 			)
 			start := time.Now()
 			env, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
-			elapsed := time.Now().Sub(start)
+			elapsed := time.Since(start)
 			if err != nil {
 				r.logger.Info("upload errored", zap.Error(err))
 				continue
@@ -218,7 +243,7 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 			contentSize := uploadEvent.content.Len()
 			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
 			r.logger.Info("upload succeeded",
-				zap.Int("content_size_kb", uploadEvent.content.Len() / 1024),
+				zap.Int("content_size_kb", uploadEvent.content.Len()/1024),
 				zap.Duration("time", elapsed),
 				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
 				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
@@ -238,9 +263,9 @@ func (r *runner) doUploads(wg *sync.WaitGroup) {
 	}
 }
 
-func (r *runner) doDownloads(wg *sync.WaitGroup) {
+func (r *Runner) doDownloads(wg *sync.WaitGroup) {
 	defer wg.Done()
-	for downloadEvent := range r.toDownload {
+	for downEvent := range r.toDownload {
 		select {
 		case <-r.done:
 			return
@@ -250,21 +275,21 @@ func (r *runner) doDownloads(wg *sync.WaitGroup) {
 			time.Sleep(wait)
 			downloaded := new(bytes.Buffer)
 			r.logger.Debug("downloading",
-				zap.String("author_id", downloadEvent.to.ClientID.ID().String()),
+				zap.String("author_id", downEvent.to.ClientID.ID().String()),
 			)
 			start := time.Now()
-			if err := r.querier.download(downloadEvent.to, downloaded, downloadEvent.envKey); err != nil {
+			if err := r.querier.download(downEvent.to, downloaded, downEvent.envKey); err != nil {
 				r.logger.Info("download errored", zap.Error(err))
 				continue
 			}
-			elapsed := time.Now().Sub(start)
+			elapsed := time.Since(start)
 			contentSize := downloaded.Len()
 			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
 			r.logger.Info("download succeeded",
-				zap.Int("content_size_kb", downloaded.Len() / 1024),
+				zap.Int("content_size_kb", downloaded.Len()/1024),
 				zap.Duration("time", elapsed),
 				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
-				zap.String("author_id", downloadEvent.to.ClientID.ID().String()),
+				zap.String("author_id", downEvent.to.ClientID.ID().String()),
 			)
 		}
 	}
@@ -288,7 +313,9 @@ func (q *querierImpl) download(author *author.Author, content io.Writer, envKey 
 	return author.Download(content, envKey)
 }
 
-func (q *querierImpl) share(author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey) (id.ID, error) {
+func (q *querierImpl) share(
+	author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey,
+) (id.ID, error) {
 	_, shareEnvKey, err := author.ShareEnvelope(env, readerPub)
 	return shareEnvKey, err
 }
@@ -320,7 +347,9 @@ func maybePanic(err error) {
 	}
 }
 
-func newAuthorConfigs(dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string) []*author.Config {
+func newAuthorConfigs(
+	dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string,
+) []*author.Config {
 	logLevel := server.GetLogLevel(logLevelStr)
 	authorConfigs := make([]*author.Config, nAuthors)
 	for c := uint(0); c < nAuthors; c++ {

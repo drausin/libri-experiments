@@ -1,24 +1,25 @@
 package sim
 
 import (
+	"crypto/ecdsa"
+	"io"
+	"io/ioutil"
+	"math/rand"
+	"net"
+	"os"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/common/id"
-	"io"
-	"math/rand"
-	"testing"
-	"os"
-	"io/ioutil"
-	"github.com/stretchr/testify/assert"
-	"net"
-	"time"
-	"crypto/ecdsa"
-	"sync"
 	"github.com/drausin/libri/libri/librarian/api"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRunner_RunStop(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
-	params := NewDefaultParameters()
+	params := newDefaultParameters()
 	params.Duration = 500 * time.Millisecond
 	params.NAuthors = 5
 	params.DocsPerDay = 100000 // has to be ridiculously large to get any queries in 1s
@@ -38,7 +39,7 @@ func TestRunner_RunStop(t *testing.T) {
 
 type fixedQuerier struct {
 	uploaded map[string]io.Reader
-	mu sync.Mutex
+	mu       sync.Mutex
 	rng      *rand.Rand
 }
 
@@ -62,7 +63,9 @@ func (f *fixedQuerier) download(author *author.Author, content io.Writer, envKey
 	return nil
 }
 
-func (f *fixedQuerier) share(author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey) (id.ID, error) {
+func (f *fixedQuerier) share(
+	author *author.Author, env *api.Envelope, readerPub *ecdsa.PublicKey,
+) (id.ID, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	envKey, err := api.GetKey(env)

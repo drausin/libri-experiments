@@ -1,18 +1,19 @@
 package sim
 
 import (
-	"time"
-	"math/rand"
-	"gonum.org/v1/gonum/stat/distuv"
-	erand "golang.org/x/exp/rand"
-	"fmt"
 	"bytes"
 	"crypto/ecdsa"
+	"fmt"
+	"math/rand"
+	"net"
+	"sync"
+	"time"
+
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/author/keychain"
-	"net"
 	"github.com/drausin/libri/libri/common/logging"
-	"sync"
+	erand "golang.org/x/exp/rand"
+	"gonum.org/v1/gonum/stat/distuv"
 )
 
 const (
@@ -32,7 +33,14 @@ type directoryImpl struct {
 	mu         sync.Mutex
 }
 
-func newDirectory(rng *rand.Rand, dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string) *directoryImpl {
+func newDirectory(
+	rng *rand.Rand,
+	dataDir string,
+	librarianAddrs []*net.TCPAddr,
+	nAuthors uint,
+	logLevelStr string,
+) *directoryImpl {
+
 	authors := make([]*author.Author, nAuthors)
 	keys := make([]keychain.GetterSampler, nAuthors)
 	logger := server.NewDevLogger(server.GetLogLevel(logLevelStr))
@@ -136,8 +144,8 @@ func (s *uploadEventSamplerImpl) sample() *uploadEvent {
 	from, _ := s.authors.sample()
 	shareWith := make([]*ecdsa.PublicKey, s.nSharesPerUpload)
 	for i := range shareWith {
-		// just sample a random author, not really representative of real world, but for now gets us the Share and
-		// Download load we want
+		// just sample a random author, not really representative of real world, but for now gets
+		// us the Share and Download load we want
 		_, shareWith[i] = s.authors.sample()
 	}
 	return &uploadEvent{
@@ -154,7 +162,7 @@ type contentSampler interface {
 type gammaContentSampler struct {
 	sizeSampler *distuv.Gamma
 	rng         *rand.Rand
-	mu               sync.Mutex
+	mu          sync.Mutex
 }
 
 func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaContentSampler {

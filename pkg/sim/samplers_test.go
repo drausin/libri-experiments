@@ -1,15 +1,16 @@
 package sim
 
 import (
-	"testing"
-	"math/rand"
-	"github.com/drausin/libri/libri/author"
 	"crypto/ecdsa"
+	"io/ioutil"
+	"math/rand"
+	"net"
+	"os"
+	"testing"
+
+	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/common/ecid"
 	"github.com/stretchr/testify/assert"
-	"net"
-	"io/ioutil"
-	"os"
 )
 
 func TestDirectoryImplSampleGet(t *testing.T) {
@@ -39,9 +40,10 @@ func TestUploadEventSamplerImplSample(t *testing.T) {
 		returnAuthor: &author.Author{},
 	}
 
+	cs := newGammaContentSampler(rng, DefaultContentSizeKBGammaShape, DefaultContentSizeKBGammaRate)
 	s := uploadEventSamplerImpl{
 		nSharesPerUpload: nSharesPerUpload,
-		content:          newGammaContentSampler(rng, defaultContentSizeKBGammaShape, defaultContentSizeKBGammaRate),
+		content:          cs,
 		authors:          d,
 	}
 	e := s.sample()
