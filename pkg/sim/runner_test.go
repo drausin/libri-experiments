@@ -74,3 +74,19 @@ func (f *fixedQuerier) share(
 	f.uploaded[shareEnvKey.String()] = f.uploaded[envKey.String()]
 	return shareEnvKey, nil
 }
+
+func newDefaultParameters() *Parameters {
+	return &Parameters{
+		Duration:                DefaultDuration,
+		NAuthors:                DefaultNAuthors,
+		DocsPerDay:              DefaultDocsPerDay,
+		ContentSizeKBGammaShape: DefaultContentSizeKBGammaShape,
+		ContentSizeKBGammaRate:  DefaultContentSizeKBGammaRate,
+		SharesPerUpload:         DefaultSharesPerUpload,
+		DownloadWaitMin:         DefaultDownloadWaitMin,
+		DownloadWaitMax:         DefaultDownloadWaitMax,
+		NUploaders:              DefaultNUploaders,
+		NDownloaders:            DefaultNDownloaders,
+		LogLevel:                DefaultLogLevel,
+	}
+}

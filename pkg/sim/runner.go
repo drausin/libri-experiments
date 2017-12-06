@@ -79,22 +79,6 @@ type Parameters struct {
 	LogLevel                string
 }
 
-func newDefaultParameters() *Parameters {
-	return &Parameters{
-		Duration:                DefaultDuration,
-		NAuthors:                DefaultNAuthors,
-		DocsPerDay:              DefaultDocsPerDay,
-		ContentSizeKBGammaShape: DefaultContentSizeKBGammaShape,
-		ContentSizeKBGammaRate:  DefaultContentSizeKBGammaRate,
-		SharesPerUpload:         DefaultSharesPerUpload,
-		DownloadWaitMin:         DefaultDownloadWaitMin,
-		DownloadWaitMax:         DefaultDownloadWaitMax,
-		NUploaders:              DefaultNUploaders,
-		NDownloaders:            DefaultNDownloaders,
-		LogLevel:                DefaultLogLevel,
-	}
-}
-
 type uploadEvent struct {
 	content   *bytes.Buffer
 	from      *author.Author
