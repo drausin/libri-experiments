@@ -106,6 +106,7 @@ type downloadEvent struct {
 	envKey id.ID
 }
 
+// Runner runs experiments.
 type Runner struct {
 	params         *Parameters
 	authors        directory
