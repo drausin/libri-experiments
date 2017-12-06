@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	expNameFlag                 = "name"
+	expNameFlag                 = "expName"
 	durationFlag                = "duration"
 	nAuthorsFlag                = "nAuthors"
 	docsPerDayFlag              = "docsPerDay"

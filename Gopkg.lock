@@ -14,6 +14,12 @@
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
 
 [[projects]]
+  name = "github.com/blang/semver"
+  packages = ["."]
+  revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
+  version = "v3.5.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
@@ -39,7 +45,7 @@
 
 [[projects]]
   name = "github.com/drausin/libri"
-  packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify"]
+  packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify","version"]
   revision = "f3eacac7aa29586bfa81d2e5b14e05aa5d15436d"
 
 [[projects]]
@@ -344,6 +350,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "04d9da7f0a9f472b788831d722947c52e50f0b174c7217caa603305b0596446b"
+  inputs-digest = "da2e74bfd7c6a4a0024503126739612d6541e2e99975cd3b8b72e6b97af7f137"
   solver-name = "gps-cdcl"
   solver-version = 1
