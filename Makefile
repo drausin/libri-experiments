@@ -1,6 +1,5 @@
 SHELL=/bin/bash -eou pipefail
-GOTOOLS= github.com/alecthomas/gometalinter \
-	 github.com/wadey/gocovmerge
+GOTOOLS= github.com/alecthomas/gometalinter
 LIBRI_PKGS=$(shell go list ./... | grep -v /vendor/)
 LIBRI_PKG_SUBDIRS=$(shell go list ./... | grep -v /vendor/ | sed -r 's|github.com/drausin/libri-experiments/||g' | sort)
 GIT_STATUS_SUBDIRS=$(shell git status --porcelain | grep -e '\.go$$' | sed -r 's|^...(.+)/[^/]+\.go$$|\1|' | sort | uniq)
@@ -17,11 +16,11 @@ build:
 
 build-static:
 	@echo "--> Running go build for static binary"
-	@./scripts/build-static.sh deploy/bin/libri-sim
+	@./scripts/build-static.sh deploy/bin/libri-exp
 
 docker-image:
 	@echo "--> Building docker image"
-	@docker build --rm=false -t daedalus2718/libri-sim:snapshot deploy
+	@docker build --rm=false -t daedalus2718/libri-exp:snapshot deploy
 
 fix:
 	@echo "--> Running goimports"
