@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"path"
-
 	"github.com/drausin/libri-experiments/pkg/sim"
 	"github.com/drausin/libri/libri/librarian/server"
 	"github.com/spf13/cobra"
@@ -10,9 +8,8 @@ import (
 )
 
 const (
-	expNameFlag                 = "expName"
 	durationFlag                = "duration"
-	nAuthorsFlag                = "nAuthors"
+	numAuthorsFlag              = "numAuthors"
 	docsPerDayFlag              = "docsPerDay"
 	contentSizeKBGammaShapeFlag = "contentSizeKBGammaShape"
 	contentSizeKBGammaRateFlag  = "contentSizeKBGammaRate"
@@ -36,13 +33,11 @@ var runCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(runCmd)
 
-	runCmd.Flags().String(expNameFlag, "",
-		"experiment name")
 	runCmd.Flags().StringSliceP(librariansFlag, "a", nil,
 		"comma-separated addresses (IPv4:Port) of librarian(s)")
 	runCmd.Flags().Duration(durationFlag, sim.DefaultDuration,
 		"experiment duration")
-	runCmd.Flags().Uint(nAuthorsFlag, sim.DefaultNAuthors,
+	runCmd.Flags().Uint(numAuthorsFlag, sim.DefaultNumAuthors,
 		"number of authors (users)")
 	runCmd.Flags().Uint(docsPerDayFlag, sim.DefaultDocsPerDay,
 		"number docs an author uploads per day")
@@ -67,8 +62,7 @@ func runExperiment() error {
 	if err != nil {
 		return err
 	}
-	expName := viper.GetString(expNameFlag)
-	dataDir := path.Join(viper.GetString(dataDirFlag), expName)
+	dataDir := viper.GetString(dataDirFlag)
 	params := getParameters()
 	runner := sim.NewRunner(params, dataDir, librarianAddrs)
 
@@ -79,7 +73,7 @@ func runExperiment() error {
 func getParameters() *sim.Parameters {
 	return &sim.Parameters{
 		Duration:                viper.GetDuration(durationFlag),
-		NAuthors:                uint(viper.GetInt(nAuthorsFlag)),
+		NumAuthors:              uint(viper.GetInt(numAuthorsFlag)),
 		DocsPerDay:              uint(viper.GetInt(docsPerDayFlag)),
 		ContentSizeKBGammaShape: viper.GetFloat64(contentSizeKBGammaShapeFlag),
 		ContentSizeKBGammaRate:  viper.GetFloat64(contentSizeKBGammaRateFlag),

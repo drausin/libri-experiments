@@ -30,8 +30,8 @@ const (
 	// DefaultDuration is the default time for the experiment to run
 	DefaultDuration = 1 * time.Hour
 
-	// DefaultNAuthors is the default number of authors to use in the experiment.
-	DefaultNAuthors = uint(1000)
+	// DefaultNumAuthors is the default number of authors to use in the experiment.
+	DefaultNumAuthors = uint(1000)
 
 	// DefaultDocsPerDay is the default number of documents to assume each author uploads per day.
 	DefaultDocsPerDay = uint(1)
@@ -67,7 +67,7 @@ const (
 // Parameters contains the parameters that define the experiment.
 type Parameters struct {
 	Duration                time.Duration
-	NAuthors                uint
+	NumAuthors              uint
 	DocsPerDay              uint
 	ContentSizeKBGammaShape float64
 	ContentSizeKBGammaRate  float64
@@ -112,7 +112,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 		max: params.DownloadWaitMax,
 		rng: rand.New(rand.NewSource(0)),
 	}
-	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors,
+	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NumAuthors,
 		params.LogLevel)
 	docSizeSampler := newGammaContentSampler(
 		rand.New(rand.NewSource(0)),
@@ -124,7 +124,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 		nSharesPerUpload: params.SharesPerUpload,
 		content:          docSizeSampler,
 	}
-	uploadsPerSecond := float64(params.NAuthors) * float64(params.DocsPerDay) / (24 * 3600)
+	uploadsPerSecond := float64(params.NumAuthors) * float64(params.DocsPerDay) / (24 * 3600)
 	uploadWaitMS := 1000 / uploadsPerSecond
 
 	return &Runner{
