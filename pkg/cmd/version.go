@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
+	"github.com/drausin/libri-experiments/pkg/version"
 	"github.com/drausin/libri/libri/common/errors"
-	"github.com/drausin/libri/version"
 	"github.com/spf13/cobra"
 )
 
