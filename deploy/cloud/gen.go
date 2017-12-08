@@ -28,6 +28,7 @@ const (
 	kubeConfigFilename         = "libri-sim.yml"
 )
 
+// SimConfig defines the simulation config params.
 type SimConfig struct {
 	LibriExpVersion         string
 	Librarians              string
