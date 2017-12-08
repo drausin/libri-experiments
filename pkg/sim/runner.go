@@ -30,8 +30,8 @@ const (
 	// DefaultDuration is the default time for the experiment to run
 	DefaultDuration = 1 * time.Hour
 
-	// DefaultNumAuthors is the default number of authors to use in the experiment.
-	DefaultNumAuthors = uint(1000)
+	// DefaultNAuthors is the default number of authors to use in the experiment.
+	DefaultNAuthors = uint(1000)
 
 	// DefaultDocsPerDay is the default number of documents to assume each author uploads per day.
 	DefaultDocsPerDay = uint(1)
@@ -67,7 +67,7 @@ const (
 // Parameters contains the parameters that define the experiment.
 type Parameters struct {
 	Duration                time.Duration
-	NumAuthors              uint
+	NAuthors                uint
 	DocsPerDay              uint
 	ContentSizeKBGammaShape float64
 	ContentSizeKBGammaRate  float64
@@ -112,7 +112,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 		max: params.DownloadWaitMax,
 		rng: rand.New(rand.NewSource(0)),
 	}
-	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NumAuthors,
+	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors,
 		params.LogLevel)
 	docSizeSampler := newGammaContentSampler(
 		rand.New(rand.NewSource(0)),
@@ -124,7 +124,7 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 		nSharesPerUpload: params.SharesPerUpload,
 		content:          docSizeSampler,
 	}
-	uploadsPerSecond := float64(params.NumAuthors) * float64(params.DocsPerDay) / (24 * 3600)
+	uploadsPerSecond := float64(params.NAuthors) * float64(params.DocsPerDay) / (24 * 3600)
 	uploadWaitMS := 1000 / uploadsPerSecond
 
 	return &Runner{
@@ -210,40 +210,26 @@ func (r *Runner) generateUploads() {
 func (r *Runner) doUploads(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for uploadEvent := range r.toUpload {
+		env, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
+		if err != nil {
+			r.logger.Info("upload errored", zap.Error(err))
+			continue
+		}
+		for _, withPub := range uploadEvent.shareWith {
+			shareEnvKey, err := r.querier.share(uploadEvent.from, env, withPub)
+			if err != nil {
+				r.logger.Info("share errored", zap.Error(err))
+				continue
+			}
+			r.toDownload <- &downloadEvent{
+				to:     r.authors.get(withPub),
+				envKey: shareEnvKey,
+			}
+		}
 		select {
 		case <-r.done:
 			return
 		default:
-			r.logger.Debug("uploading",
-				zap.Int("content_size_kb", uploadEvent.content.Len()/1024),
-				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
-			)
-			start := time.Now()
-			env, err := r.querier.upload(uploadEvent.from, uploadEvent.content)
-			elapsed := time.Since(start)
-			if err != nil {
-				r.logger.Info("upload errored", zap.Error(err))
-				continue
-			}
-			contentSize := uploadEvent.content.Len()
-			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
-			r.logger.Info("upload succeeded",
-				zap.Int("content_size_kb", uploadEvent.content.Len()/1024),
-				zap.Duration("time", elapsed),
-				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
-				zap.String("author_id", uploadEvent.from.ClientID.ID().String()),
-			)
-			for _, withPub := range uploadEvent.shareWith {
-				shareEnvKey, err := r.querier.share(uploadEvent.from, env, withPub)
-				if err != nil {
-					r.logger.Info("share errored", zap.Error(err))
-					continue
-				}
-				r.toDownload <- &downloadEvent{
-					to:     r.authors.get(withPub),
-					envKey: shareEnvKey,
-				}
-			}
 		}
 	}
 }
@@ -251,31 +237,21 @@ func (r *Runner) doUploads(wg *sync.WaitGroup) {
 func (r *Runner) doDownloads(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for downEvent := range r.toDownload {
+		wait := r.downloadWait.sample()
+		r.logger.Debug("waiting to download", zap.Duration("wait_time", wait))
+		time.Sleep(wait)
+		downloaded := new(bytes.Buffer)
+		r.logger.Debug("downloading",
+			zap.String("author_id", downEvent.to.ClientID.ID().String()),
+		)
+		if err := r.querier.download(downEvent.to, downloaded, downEvent.envKey); err != nil {
+			r.logger.Info("download errored", zap.Error(err))
+			continue
+		}
 		select {
 		case <-r.done:
 			return
 		default:
-			wait := r.downloadWait.sample()
-			r.logger.Debug("waiting to download", zap.Duration("wait_time", wait))
-			time.Sleep(wait)
-			downloaded := new(bytes.Buffer)
-			r.logger.Debug("downloading",
-				zap.String("author_id", downEvent.to.ClientID.ID().String()),
-			)
-			start := time.Now()
-			if err := r.querier.download(downEvent.to, downloaded, downEvent.envKey); err != nil {
-				r.logger.Info("download errored", zap.Error(err))
-				continue
-			}
-			elapsed := time.Since(start)
-			contentSize := downloaded.Len()
-			speedMbps := float32(contentSize) * 8 / float32(2<<20) / float32(elapsed.Seconds())
-			r.logger.Info("download succeeded",
-				zap.Int("content_size_kb", downloaded.Len()/1024),
-				zap.Duration("time", elapsed),
-				zap.String("speed_Mbps", fmt.Sprintf("%.2f", speedMbps)),
-				zap.String("author_id", downEvent.to.ClientID.ID().String()),
-			)
 		}
 	}
 }

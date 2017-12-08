@@ -37,7 +37,7 @@ func init() {
 		"comma-separated addresses (IPv4:Port) of librarian(s)")
 	runCmd.Flags().Duration(durationFlag, sim.DefaultDuration,
 		"experiment duration")
-	runCmd.Flags().Uint(numAuthorsFlag, sim.DefaultNumAuthors,
+	runCmd.Flags().Uint(numAuthorsFlag, sim.DefaultNAuthors,
 		"number of authors (users)")
 	runCmd.Flags().Uint(docsPerDayFlag, sim.DefaultDocsPerDay,
 		"number docs an author uploads per day")
@@ -55,6 +55,10 @@ func init() {
 		"number of uploader workers")
 	runCmd.Flags().Uint(nDownloadersFlag, sim.DefaultNDownloaders,
 		"number of downloader workers")
+
+	if err := viper.BindPFlags(runCmd.Flags()); err != nil {
+		panic(err)
+	}
 }
 
 func runExperiment() error {
@@ -73,7 +77,7 @@ func runExperiment() error {
 func getParameters() *sim.Parameters {
 	return &sim.Parameters{
 		Duration:                viper.GetDuration(durationFlag),
-		NumAuthors:              uint(viper.GetInt(numAuthorsFlag)),
+		NAuthors:                uint(viper.GetInt(numAuthorsFlag)),
 		DocsPerDay:              uint(viper.GetInt(docsPerDayFlag)),
 		ContentSizeKBGammaShape: viper.GetFloat64(contentSizeKBGammaShapeFlag),
 		ContentSizeKBGammaRate:  viper.GetFloat64(contentSizeKBGammaRateFlag),

@@ -21,7 +21,7 @@ func TestRunner_RunStop(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
 	params := newDefaultParameters()
 	params.Duration = 500 * time.Millisecond
-	params.NumAuthors = 5
+	params.NAuthors = 5
 	params.DocsPerDay = 100000 // has to be ridiculously large to get any queries in 1s
 
 	dataDir, err := ioutil.TempDir("", "sim-data-dir")
@@ -78,7 +78,7 @@ func (f *fixedQuerier) share(
 func newDefaultParameters() *Parameters {
 	return &Parameters{
 		Duration:                DefaultDuration,
-		NumAuthors:              DefaultNumAuthors,
+		NAuthors:                DefaultNAuthors,
 		DocsPerDay:              DefaultDocsPerDay,
 		ContentSizeKBGammaShape: DefaultContentSizeKBGammaShape,
 		ContentSizeKBGammaRate:  DefaultContentSizeKBGammaRate,
