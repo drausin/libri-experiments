@@ -35,4 +35,4 @@ prometheus_port = 30090
 
 # Kubernetes cluster
 num_cluster_nodes = 2
-cluster_node_machine_type = "n1-highmem-2"  # each has 2 CPUs, 6.5 GB RAM
+cluster_node_machine_type = "n1-highmem-2"  # 2 CPUs, 6.5 GB RAM
