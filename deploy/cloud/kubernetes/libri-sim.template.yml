@@ -1,5 +1,7 @@
 apiVersion: v1
 kind: Pod
+metadata:
+  name: libri-experimenter
 spec:
   restartPolicy: Never
   volumes:
@@ -17,6 +19,8 @@ spec:
       "--contentSizeKBGammaShape",  "{{ .ContentSizeKBGammaShape }}",
       "--contentSizeKBGammaRate",   "{{ .ContentSizeKBGammaRate }}",
       "--sharesPerUpload",          "{{ .SharesPerUpload }}",
+      "--nUploaders",               "{{ .NumUploaders }} ",
+      "--nDownloaders",             "{{ .NumDownloaders }}",
     ]
     env:
     - name: GODEBUG         # ensure we use the pure Go (rather than CGO) DNS
@@ -24,3 +28,7 @@ spec:
     volumeMounts:
     - name: data
       mountPath: /data
+    resources:
+      limits:
+        memory: 2G
+        cpu: 100m
