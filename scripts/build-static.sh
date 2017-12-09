@@ -14,7 +14,7 @@ set -eou pipefail
 
 OUTPUT_FILE=${1}
 
-VERSION_PKG="github.com/drausin/libri-experiments/version"
+VERSION_PKG="github.com/drausin/libri-experiments/pkg/version"
 GIT_BRANCH_VAR="${VERSION_PKG}.GitBranch=$(git symbolic-ref -q --short HEAD)"
 GIT_REVISION_VAR="${VERSION_PKG}.GitRevision=$(git rev-parse --short HEAD)"
 BUILD_DATE_VAR="${VERSION_PKG}.BuildDate=$(date -u +"%Y-%m-%d")"
