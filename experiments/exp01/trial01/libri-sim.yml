@@ -1,5 +1,7 @@
 apiVersion: v1
 kind: Pod
+metadata:
+  name: libri-experimenter
 spec:
   restartPolicy: Never
   volumes:

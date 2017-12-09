@@ -458,8 +458,8 @@ spec:
           mountPath: /data
         resources:
           limits:
-            memory: 1G
-            cpu: 100m
+            memory: 2G
+            cpu: 200m
 
       initContainers:
       - image: devth/k8s-labeler
