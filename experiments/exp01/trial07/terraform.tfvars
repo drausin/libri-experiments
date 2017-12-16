@@ -6,6 +6,8 @@ duration = "30m"
 num_authors = 100
 docs_per_day = 640
 shares_per_upload = 2
+num_uploaders = 16
+num_downloaders = 48
 
 # this shape and rate imply a mean of ~256 KB and a 95% CI of [~18, ~794] KB.
 content_size_kb_gamma_shape = 1.5
