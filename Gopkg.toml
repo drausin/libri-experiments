@@ -24,3 +24,7 @@
 [[constraint]]
   name = "go.uber.org/zap"
   version = "1.7.1"
+
+[[constraint]]
+	name = "github.com/drausin/libri"
+	revision = "35e8b06588255a7b44130a9d4b9c4dce729ecc05"

@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/aristanetworks/goarista"
   packages = ["monotime"]
-  revision = "54fadd0c513d502544edf098480238dc9da50f9e"
+  revision = "18a2f1dd52bb9abbc1e898439df06c74f28f63a4"
 
 [[projects]]
   branch = "master"
@@ -45,8 +45,8 @@
 
 [[projects]]
   name = "github.com/drausin/libri"
-  packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify","version"]
-  revision = "f3eacac7aa29586bfa81d2e5b14e05aa5d15436d"
+  packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify"]
+  revision = "35e8b06588255a7b44130a9d4b9c4dce729ecc05"
 
 [[projects]]
   branch = "master"
@@ -97,6 +97,12 @@
   revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
+  name = "github.com/hashicorp/terraform"
+  packages = ["helper/variables"]
+  revision = "a42fdb08a43c7fabb8898fe8c286b793bbaa4835"
+  version = "v0.11.1"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -123,14 +129,20 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
-  version = "v1.7.3"
+  revision = "d419a98cdbed11a922bf76f257b7c4be79b50e73"
+  version = "v1.7.4"
 
 [[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
   revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
   branch = "master"
@@ -184,7 +196,7 @@
   branch = "master"
   name = "github.com/prometheus/procfs"
   packages = [".","xfs"]
-  revision = "a6e9df898b1336106c743392c48ee0b71f5c4efa"
+  revision = "f98634e408857669d61064b283c4cde240622865"
 
 [[projects]]
   branch = "master"
@@ -196,13 +208,13 @@
   branch = "master"
   name = "github.com/rjeczalik/notify"
   packages = ["."]
-  revision = "767eb674ef14b09119b2fff3601e64558d530c47"
+  revision = "e1801ee34d54c4bf45126ef51fe9750b4e42bee8"
 
 [[projects]]
   name = "github.com/spaolacci/murmur3"
   packages = ["."]
-  revision = "0d12bf811670bf6a1a63828dfbd003eded177fce"
-  version = "v1.0"
+  revision = "9f5d223c60793748f04a9d5b4b4eacddfc1f755d"
+  version = "v1.1"
 
 [[projects]]
   name = "github.com/spf13/afero"
@@ -291,43 +303,43 @@
   branch = "master"
   name = "golang.org/x/exp"
   packages = ["rand"]
-  revision = "a05f2c1e93dc0743a12c519ef35f386b8c095d91"
+  revision = "072991165226c11c888c881218850e8318c2b32e"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "a8b9294777976932365dabb6640cf1468d95c70f"
+  revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "8b4580aae2a0dd0c231a45d3ccb8434ff533b840"
+  revision = "571f7bbbe08da2a8955aed9d4db316e78630e9a3"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "57961680700a5336d15015c8c50686ca5ba362a4"
+  revision = "d5a9226ed7dd70cade6ccae9d37517fe14dd9fee"
 
 [[projects]]
   branch = "master"
   name = "gonum.org/v1/gonum"
   packages = ["blas","blas/blas64","blas/gonum","floats","internal/asm/c128","internal/asm/f32","internal/asm/f64","internal/math32","lapack","lapack/gonum","lapack/lapack64","mat","mathext","mathext/internal/amos","mathext/internal/cephes","mathext/internal/gonum","stat","stat/distuv"]
-  revision = "de75875b14b17bb3c1933b89fea33f4a45d46e45"
+  revision = "ad5995341f50f70b5f9667a5409d7c1d1005ab14"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "7f0da29060c682909f650ad8ed4e515bd74fa12a"
+  revision = "a8101f21cf983e773d0c1133ebc5424792003214"
 
 [[projects]]
   name = "google.golang.org/grpc"
-  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","health","health/grpc_health_v1","internal","keepalive","metadata","naming","peer","reflection","reflection/grpc_reflection_v1alpha","resolver","resolver/dns","resolver/manual","resolver/passthrough","stats","status","tap","transport"]
-  revision = "be077907e29fdb945d351e4284eb5361e7f8924e"
-  version = "v1.8.1"
+  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","health","health/grpc_health_v1","internal","keepalive","metadata","naming","peer","reflection","reflection/grpc_reflection_v1alpha","resolver","resolver/dns","resolver/passthrough","stats","status","tap","transport"]
+  revision = "e687fa4e6424368ece6e4fe727cea2c806a0fcb4"
+  version = "v1.8.2"
 
 [[projects]]
   name = "gopkg.in/fatih/set.v0"
@@ -350,6 +362,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "da2e74bfd7c6a4a0024503126739612d6541e2e99975cd3b8b72e6b97af7f137"
+  inputs-digest = "bce0b42bdb95271d033669f9dc6c1491dcc1a258ade35e4227c37214c1eb69a7"
   solver-name = "gps-cdcl"
   solver-version = 1
