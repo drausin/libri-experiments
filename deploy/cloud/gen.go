@@ -22,6 +22,8 @@ const (
 	sharesPerUploadVar         = "shares_per_upload"
 	numLibrariansVar           = "num_librarians"
 	librarianLocalPortVar      = "librarian_local_port"
+	numUploadesVar             = "num_uploaders"
+	numDownloadersVar          = "num_downloaders"
 
 	kubeTemplateDir            = "kubernetes"
 	kubeConfigTemplateFilename = "libri-sim.template.yml"
@@ -38,6 +40,8 @@ type SimConfig struct {
 	ContentSizeKBGammaShape float64
 	ContentSizeKBGammaRate  float64
 	SharesPerUpload         uint
+	NumUploaders            uint
+	NumDownloaders          uint
 }
 
 var (
@@ -112,6 +116,8 @@ func getSimConfig(tfvarsFilepath string) (*SimConfig, error) {
 		ContentSizeKBGammaShape: tfvars[contentSizeKBGammaShapeVar].(float64),
 		ContentSizeKBGammaRate:  tfvars[contentSizeKBGammaRateVar].(float64),
 		SharesPerUpload:         uint(tfvars[sharesPerUploadVar].(int)),
+		NumUploaders:            uint(tfvars[numUploadesVar].(int)),
+		NumDownloaders:          uint(tfvars[numDownloadersVar].(int)),
 	}
 	return config, nil
 }
