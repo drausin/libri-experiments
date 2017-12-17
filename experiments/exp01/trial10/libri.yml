@@ -427,7 +427,6 @@ spec:
           "--localPort", "20100",
           "--localMetricsPort", "20200",
           "--bootstraps", "librarians-0.libri.default.svc.cluster.local:20100",
-          "--logLevel", "ERROR",
           "--profile",
         ]
         env:
