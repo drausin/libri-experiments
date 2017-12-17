@@ -7,6 +7,8 @@ import (
 	"io"
 	"math/rand"
 	"net"
+	"net/http"
+	_ "net/http/pprof" // pprof doc calls for blank import
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -60,8 +62,13 @@ const (
 	// DefaultNDownloaders is the default number of downloader workers to use.
 	DefaultNDownloaders = DefaultNUploaders * DefaultSharesPerUpload
 
+	// DefaultProfile is the default setting for whether to enable the profiling endpoint.
+	DefaultProfile = false
+
 	// DefaultLogLevel is the default log level.
 	DefaultLogLevel = "INFO"
+
+	localProfilerPort = 20300
 )
 
 // Parameters contains the parameters that define the experiment.
@@ -76,6 +83,7 @@ type Parameters struct {
 	DownloadWaitMax         time.Duration
 	NUploaders              uint
 	NDownloaders            uint
+	Profile                 bool
 	LogLevel                string
 }
 
@@ -145,6 +153,16 @@ func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr
 func (r *Runner) Run() {
 	stopSignals := make(chan os.Signal, 3)
 	signal.Notify(stopSignals, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+	if r.params.Profile {
+		go func() {
+			profilerAddr := fmt.Sprintf(":%d", localProfilerPort)
+			if err := http.ListenAndServe(profilerAddr, nil); err != nil {
+				r.logger.Error("error serving profiler", zap.Error(err))
+				r.stop()
+			}
+		}()
+	}
 
 	go func() {
 		<-stopSignals

@@ -19,6 +19,7 @@ const (
 	nUploadersFlag              = "nUploaders"
 	nDownloadersFlag            = "nDownloaders"
 	librariansFlag              = "librarians"
+	profileFlag                 = "profile"
 )
 
 var runCmd = &cobra.Command{
@@ -55,6 +56,8 @@ func init() {
 		"number of uploader workers")
 	runCmd.Flags().Uint(nDownloadersFlag, sim.DefaultNDownloaders,
 		"number of downloader workers")
+	runCmd.Flags().Bool(profileFlag, false,
+		"enable /debug/pprof profiler endpoint")
 
 	if err := viper.BindPFlags(runCmd.Flags()); err != nil {
 		panic(err)
@@ -86,6 +89,7 @@ func getParameters() *sim.Parameters {
 		DownloadWaitMax:         viper.GetDuration(downloadWaitMaxFlag),
 		NUploaders:              uint(viper.GetInt(nUploadersFlag)),
 		NDownloaders:            uint(viper.GetInt(nDownloadersFlag)),
+		Profile:                 viper.GetBool(profileFlag),
 		LogLevel:                viper.GetString(logLevelFlag),
 	}
 }

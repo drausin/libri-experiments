@@ -2,10 +2,12 @@ package sim
 
 import (
 	"crypto/ecdsa"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net"
+	"net/http"
 	"os"
 	"sync"
 	"testing"
@@ -23,6 +25,7 @@ func TestRunner_RunStop(t *testing.T) {
 	params.Duration = 500 * time.Millisecond
 	params.NAuthors = 5
 	params.DocsPerDay = 100000 // has to be ridiculously large to get any queries in 1s
+	params.Profile = true
 
 	dataDir, err := ioutil.TempDir("", "sim-data-dir")
 	assert.Nil(t, err)
@@ -35,6 +38,11 @@ func TestRunner_RunStop(t *testing.T) {
 	}
 
 	r.Run()
+
+	profilerAddr := fmt.Sprintf("http://localhost:%d/debug/pprof", localProfilerPort)
+	resp, err := http.Get(profilerAddr)
+	assert.Nil(t, err)
+	assert.Equal(t, "200 OK", resp.Status)
 }
 
 type fixedQuerier struct {
@@ -87,6 +95,7 @@ func newDefaultParameters() *Parameters {
 		DownloadWaitMax:         DefaultDownloadWaitMax,
 		NUploaders:              DefaultNUploaders,
 		NDownloaders:            DefaultNDownloaders,
+		Profile:                 DefaultProfile,
 		LogLevel:                DefaultLogLevel,
 	}
 }
