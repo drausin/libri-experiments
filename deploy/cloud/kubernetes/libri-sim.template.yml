@@ -19,7 +19,7 @@ spec:
       "--contentSizeKBGammaShape",  "{{ .ContentSizeKBGammaShape }}",
       "--contentSizeKBGammaRate",   "{{ .ContentSizeKBGammaRate }}",
       "--sharesPerUpload",          "{{ .SharesPerUpload }}",
-      "--nUploaders",               "{{ .NumUploaders }} ",
+      "--nUploaders",               "{{ .NumUploaders }}",
       "--nDownloaders",             "{{ .NumDownloaders }}",
     ]
     env:
@@ -31,4 +31,4 @@ spec:
     resources:
       limits:
         memory: 2G
-        cpu: 100m
+        cpu: 400m
