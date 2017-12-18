@@ -46,7 +46,7 @@
 [[projects]]
   name = "github.com/drausin/libri"
   packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify"]
-  revision = "408963817e90556e0c41cef5b58ddfbca7fb0b91"
+  revision = "ad6ffb074a58d15516e932b0c92fe88536d878e6"
 
 [[projects]]
   branch = "master"
@@ -362,6 +362,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "17e0adbcc7d0f004ccd52d4ffc472c84e1e4200f413281c2f34ac5d63fe0e879"
+  inputs-digest = "405606d5423883d332c3d8da2fc51d6c7840ab73f9e6fbd501fa7f43ef35903e"
   solver-name = "gps-cdcl"
   solver-version = 1
