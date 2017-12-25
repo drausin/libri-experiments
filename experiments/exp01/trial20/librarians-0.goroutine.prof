@@ -1,0 +1,222 @@
+goroutine profile: total 265
+95 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x9f4f5b 0x52b721
+#	0x9f4f5a	github.com/drausin/libri/libri/librarian/server/store.(*storer).Store.func2+0xaa	/go/src/github.com/drausin/libri/libri/librarian/server/store/storer.go:100
+
+37 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x9f4e75 0x52b721
+#	0x9f4e74	github.com/drausin/libri/libri/librarian/server/store.(*storer).Store.func1+0x94	/go/src/github.com/drausin/libri/libri/librarian/server/store/storer.go:90
+
+37 @ 0x4fbf2c 0x4fc01e 0x50d6c4 0x50d2e9 0x5428d2 0x9f4496 0xa49d1d 0x8d7376 0xa236a2 0x8d63ed 0x899753 0x89d868 0x8a3ebf 0x52b721
+#	0x50d2e8	sync.runtime_Semacquire+0x38											/usr/local/go/src/runtime/sema.go:56
+#	0x5428d1	sync.(*WaitGroup).Wait+0x71											/usr/local/go/src/sync/waitgroup.go:131
+#	0x9f4495	github.com/drausin/libri/libri/librarian/server/store.(*storer).Store+0x275					/go/src/github.com/drausin/libri/libri/librarian/server/store/storer.go:110
+#	0xa49d1c	github.com/drausin/libri/libri/librarian/server.(*Librarian).Put+0x3fc						/go/src/github.com/drausin/libri/libri/librarian/server/server.go:424
+#	0x8d7375	github.com/drausin/libri/libri/librarian/api._Librarian_Put_Handler.func1+0x85					/go/src/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:933
+#	0xa236a1	github.com/drausin/libri/vendor/github.com/grpc-ecosystem/go-grpc-prometheus.UnaryServerInterceptor+0xd1	/go/src/github.com/drausin/libri/vendor/github.com/grpc-ecosystem/go-grpc-prometheus/server.go:29
+#	0x8d63ec	github.com/drausin/libri/libri/librarian/api._Librarian_Put_Handler+0x16c					/go/src/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:935
+#	0x899752	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).processUnaryRPC+0x9d2				/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:900
+#	0x89d867	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).handleStream+0x1527				/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:1122
+#	0x8a3ebe	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).serveStreams.func1.1+0x9e			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:617
+
+8 @ 0x4fbf2c 0x4f706a 0x4f6667 0x5654ee 0x56556d 0x56630a 0x6770b2 0x6895ed 0x60ab9b 0x542d86 0x542ef8 0x8351eb 0x835b54 0x86a423 0x52b721
+#	0x4f6666	internal/poll.runtime_pollWait+0x56								/usr/local/go/src/runtime/netpoll.go:173
+#	0x5654ed	internal/poll.(*pollDesc).wait+0xad								/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56556c	internal/poll.(*pollDesc).waitRead+0x3c								/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x566309	internal/poll.(*FD).Read+0x189									/usr/local/go/src/internal/poll/fd_unix.go:125
+#	0x6770b1	net.(*netFD).Read+0x51										/usr/local/go/src/net/fd_unix.go:202
+#	0x6895ec	net.(*conn).Read+0x6c										/usr/local/go/src/net/net.go:176
+#	0x60ab9a	bufio.(*Reader).Read+0x30a									/usr/local/go/src/bufio/bufio.go:213
+#	0x542d85	io.ReadAtLeast+0x85										/usr/local/go/src/io/io.go:309
+#	0x542ef7	io.ReadFull+0x57										/usr/local/go/src/io/io.go:327
+#	0x8351ea	github.com/drausin/libri/vendor/golang.org/x/net/http2.readFrameHeader+0x7a			/go/src/github.com/drausin/libri/vendor/golang.org/x/net/http2/frame.go:237
+#	0x835b53	github.com/drausin/libri/vendor/golang.org/x/net/http2.(*Framer).ReadFrame+0xa3			/go/src/github.com/drausin/libri/vendor/golang.org/x/net/http2/frame.go:492
+#	0x86a422	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*http2Client).reader+0xc2	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/http2_client.go:1167
+
+8 @ 0x4fbf2c 0x4f706a 0x4f6667 0x5654ee 0x56556d 0x56630a 0x6770b2 0x6895ed 0x60ab9b 0x542d86 0x542ef8 0x8351eb 0x835b54 0x86ea3a 0x8980f0 0x897a10 0x52b721
+#	0x4f6666	internal/poll.runtime_pollWait+0x56									/usr/local/go/src/runtime/netpoll.go:173
+#	0x5654ed	internal/poll.(*pollDesc).wait+0xad									/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56556c	internal/poll.(*pollDesc).waitRead+0x3c									/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x566309	internal/poll.(*FD).Read+0x189										/usr/local/go/src/internal/poll/fd_unix.go:125
+#	0x6770b1	net.(*netFD).Read+0x51											/usr/local/go/src/net/fd_unix.go:202
+#	0x6895ec	net.(*conn).Read+0x6c											/usr/local/go/src/net/net.go:176
+#	0x60ab9a	bufio.(*Reader).Read+0x30a										/usr/local/go/src/bufio/bufio.go:213
+#	0x542d85	io.ReadAtLeast+0x85											/usr/local/go/src/io/io.go:309
+#	0x542ef7	io.ReadFull+0x57											/usr/local/go/src/io/io.go:327
+#	0x8351ea	github.com/drausin/libri/vendor/golang.org/x/net/http2.readFrameHeader+0x7a				/go/src/github.com/drausin/libri/vendor/golang.org/x/net/http2/frame.go:237
+#	0x835b53	github.com/drausin/libri/vendor/golang.org/x/net/http2.(*Framer).ReadFrame+0xa3				/go/src/github.com/drausin/libri/vendor/golang.org/x/net/http2/frame.go:492
+#	0x86ea39	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*http2Server).HandleStreams+0x39	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/http2_server.go:390
+#	0x8980ef	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).serveStreams+0x13f			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:613
+#	0x897a0f	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).handleRawConn+0x5df			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:574
+
+8 @ 0x4fbf2c 0x50c348 0x873904 0x52b721
+#	0x873903	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*http2Server).keepalive+0x263	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/http2_server.go:951
+
+8 @ 0x4fbf2c 0x50c348 0x87aed6 0x87c5ae 0x52b721
+#	0x87aed5	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.loopyWriter+0x3c5		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:719
+#	0x87c5ad	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.newHTTP2Client.func3+0x5d	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/http2_client.go:302
+
+8 @ 0x4fbf2c 0x50c348 0x87aed6 0x87cefe 0x52b721
+#	0x87aed5	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.loopyWriter+0x3c5		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:719
+#	0x87cefd	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.newHTTP2Server.func1+0x5d	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/http2_server.go:256
+
+8 @ 0x4fbf2c 0x50c348 0x887a46 0x52b721
+#	0x887a45	github.com/drausin/libri/vendor/google.golang.org/grpc.(*ccBalancerWrapper).watcher+0x155	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/balancer_conn_wrappers.go:120
+
+8 @ 0x4fbf2c 0x50c348 0x88f186 0x8a394e 0x52b721
+#	0x88f185	github.com/drausin/libri/vendor/google.golang.org/grpc.(*addrConn).transportMonitor+0x165	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/clientconn.go:1036
+#	0x8a394d	github.com/drausin/libri/vendor/google.golang.org/grpc.(*addrConn).connect.func1+0x1cd		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/clientconn.go:747
+
+8 @ 0x4fbf2c 0x50c348 0x89349c 0x52b721
+#	0x89349b	github.com/drausin/libri/vendor/google.golang.org/grpc.(*ccResolverWrapper).watcher+0x1ab	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/resolver_conn_wrapper.go:99
+
+6 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0xa4acca 0x8d668e 0xa23939 0x89b543 0x89d801 0x8a3ebf 0x52b721
+#	0xa4acc9	github.com/drausin/libri/libri/librarian/server.(*Librarian).Subscribe+0x619					/go/src/github.com/drausin/libri/libri/librarian/server/server.go:481
+#	0x8d668d	github.com/drausin/libri/libri/librarian/api._Librarian_Subscribe_Handler+0x10d					/go/src/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:943
+#	0xa23938	github.com/drausin/libri/vendor/github.com/grpc-ecosystem/go-grpc-prometheus.StreamServerInterceptor+0x138	/go/src/github.com/drausin/libri/vendor/github.com/grpc-ecosystem/go-grpc-prometheus/server.go:40
+#	0x89b542	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).processStreamingRPC+0x3d2			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:1039
+#	0x89d800	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).handleStream+0x14c0				/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:1126
+#	0x8a3ebe	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).serveStreams.func1.1+0x9e			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:617
+
+2 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x7ae21a 0x52b721
+#	0x7ae219	github.com/drausin/libri/libri/common/errors.MonitorRunningErrors+0x139	/go/src/github.com/drausin/libri/libri/common/errors/errors.go:35
+
+2 @ 0x4fbf2c 0x50c348 0x87920b 0x878ec7 0x87a195 0x542d86 0x542ef8 0x87a0df 0x893975 0x8949bd 0x8a0c8c 0x8d52b2 0x9daa30 0x9db340 0x52b721
+#	0x87920a	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*recvBufferReader).read+0x28a	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:133
+#	0x878ec6	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*recvBufferReader).Read+0x66	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:122
+#	0x87a194	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*transportReader).Read+0x54	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:387
+#	0x542d85	io.ReadAtLeast+0x85										/usr/local/go/src/io/io.go:309
+#	0x542ef7	io.ReadFull+0x57										/usr/local/go/src/io/io.go:327
+#	0x87a0de	github.com/drausin/libri/vendor/google.golang.org/grpc/transport.(*Stream).Read+0xbe		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/transport/transport.go:371
+#	0x893974	github.com/drausin/libri/vendor/google.golang.org/grpc.(*parser).recvMsg+0x64			/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/rpc_util.go:285
+#	0x8949bc	github.com/drausin/libri/vendor/google.golang.org/grpc.recv+0x4c				/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/rpc_util.go:394
+#	0x8a0c8b	github.com/drausin/libri/vendor/google.golang.org/grpc.(*clientStream).RecvMsg+0x10b		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/stream.go:435
+#	0x8d52b1	github.com/drausin/libri/libri/librarian/api.(*librarianSubscribeClient).Recv+0x61		/go/src/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:800
+#	0x9daa2f	github.com/drausin/libri/libri/common/subscribe.(*subscriptionBeginnerImpl).begin+0x14f		/go/src/github.com/drausin/libri/libri/common/subscribe/to.go:307
+#	0x9db33f	github.com/drausin/libri/libri/common/subscribe.(*to).Begin.func2+0x5cf				/go/src/github.com/drausin/libri/libri/common/subscribe/to.go:189
+
+2 @ 0x4fbf2c 0x50c348 0x8a574d 0x52b721
+#	0x8a574c	github.com/drausin/libri/vendor/google.golang.org/grpc.newClientStream.func4+0x1cc	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/stream.go:277
+
+1 @ 0x4de3a2 0x512026 0x9f7af2 0x52b721
+#	0x512025	os/signal.signal_recv+0xa5	/usr/local/go/src/runtime/sigqueue.go:131
+#	0x9f7af1	os/signal.loop+0x21		/usr/local/go/src/os/signal/signal_unix.go:22
+
+1 @ 0x4fbf2c 0x4f706a 0x4f6667 0x5654ee 0x56556d 0x5679c2 0x677ad2 0x693b4e 0x691f29 0x77b1cf 0x779e72 0x779bb9 0x77ad4f 0xa4d7ae 0x52b721
+#	0x4f6666	internal/poll.runtime_pollWait+0x56								/usr/local/go/src/runtime/netpoll.go:173
+#	0x5654ed	internal/poll.(*pollDesc).wait+0xad								/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56556c	internal/poll.(*pollDesc).waitRead+0x3c								/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x5679c1	internal/poll.(*FD).Accept+0x1e1								/usr/local/go/src/internal/poll/fd_unix.go:334
+#	0x677ad1	net.(*netFD).accept+0x41									/usr/local/go/src/net/fd_unix.go:238
+#	0x693b4d	net.(*TCPListener).accept+0x2d									/usr/local/go/src/net/tcpsock_posix.go:136
+#	0x691f28	net.(*TCPListener).AcceptTCP+0x48								/usr/local/go/src/net/tcpsock.go:234
+#	0x77b1ce	net/http.tcpKeepAliveListener.Accept+0x2e							/usr/local/go/src/net/http/server.go:3120
+#	0x779e71	net/http.(*Server).Serve+0x1b1									/usr/local/go/src/net/http/server.go:2695
+#	0x779bb8	net/http.(*Server).ListenAndServe+0xa8								/usr/local/go/src/net/http/server.go:2636
+#	0x77ad4e	net/http.ListenAndServe+0x7e									/usr/local/go/src/net/http/server.go:2882
+#	0xa4d7ad	github.com/drausin/libri/libri/librarian/server.(*Librarian).startAuxRoutines.func2+0xdd	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:217
+
+1 @ 0x4fbf2c 0x4f706a 0x4f6667 0x5654ee 0x56556d 0x5679c2 0x677ad2 0x693b4e 0x691f29 0x77b1cf 0x779e72 0x779bb9 0xa4d48a 0x52b721
+#	0x4f6666	internal/poll.runtime_pollWait+0x56								/usr/local/go/src/runtime/netpoll.go:173
+#	0x5654ed	internal/poll.(*pollDesc).wait+0xad								/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56556c	internal/poll.(*pollDesc).waitRead+0x3c								/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x5679c1	internal/poll.(*FD).Accept+0x1e1								/usr/local/go/src/internal/poll/fd_unix.go:334
+#	0x677ad1	net.(*netFD).accept+0x41									/usr/local/go/src/net/fd_unix.go:238
+#	0x693b4d	net.(*TCPListener).accept+0x2d									/usr/local/go/src/net/tcpsock_posix.go:136
+#	0x691f28	net.(*TCPListener).AcceptTCP+0x48								/usr/local/go/src/net/tcpsock.go:234
+#	0x77b1ce	net/http.tcpKeepAliveListener.Accept+0x2e							/usr/local/go/src/net/http/server.go:3120
+#	0x779e71	net/http.(*Server).Serve+0x1b1									/usr/local/go/src/net/http/server.go:2695
+#	0x779bb8	net/http.(*Server).ListenAndServe+0xa8								/usr/local/go/src/net/http/server.go:2636
+#	0xa4d489	github.com/drausin/libri/libri/librarian/server.(*Librarian).startAuxRoutines.func1+0x49	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:207
+
+1 @ 0x4fbf2c 0x4f706a 0x4f6667 0x5654ee 0x56556d 0x5679c2 0x677ad2 0x693b4e 0x692169 0x896f06 0xa414d8 0xa3f6c6 0xb114fd 0xa7588a 0xa7605e 0xa75d2b 0xb0e011 0xb12c10 0x4fba8d 0x52b721
+#	0x4f6666	internal/poll.runtime_pollWait+0x56							/usr/local/go/src/runtime/netpoll.go:173
+#	0x5654ed	internal/poll.(*pollDesc).wait+0xad							/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56556c	internal/poll.(*pollDesc).waitRead+0x3c							/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x5679c1	internal/poll.(*FD).Accept+0x1e1							/usr/local/go/src/internal/poll/fd_unix.go:334
+#	0x677ad1	net.(*netFD).accept+0x41								/usr/local/go/src/net/fd_unix.go:238
+#	0x693b4d	net.(*TCPListener).accept+0x2d								/usr/local/go/src/net/tcpsock_posix.go:136
+#	0x692168	net.(*TCPListener).Accept+0x48								/usr/local/go/src/net/tcpsock.go:247
+#	0x896f05	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).Serve+0x195		/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:495
+#	0xa414d7	github.com/drausin/libri/libri/librarian/server.(*Librarian).listenAndServe+0x4b7	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:194
+#	0xa3f6c5	github.com/drausin/libri/libri/librarian/server.Start+0xa5				/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:65
+#	0xb114fc	github.com/drausin/libri/libri/cmd.glob..func5+0x8c					/go/src/github.com/drausin/libri/libri/cmd/start.go:44
+#	0xa75889	github.com/drausin/libri/vendor/github.com/spf13/cobra.(*Command).execute+0x479		/go/src/github.com/drausin/libri/vendor/github.com/spf13/cobra/command.go:698
+#	0xa7605d	github.com/drausin/libri/vendor/github.com/spf13/cobra.(*Command).ExecuteC+0x30d	/go/src/github.com/drausin/libri/vendor/github.com/spf13/cobra/command.go:783
+#	0xa75d2a	github.com/drausin/libri/vendor/github.com/spf13/cobra.(*Command).Execute+0x2a		/go/src/github.com/drausin/libri/vendor/github.com/spf13/cobra/command.go:736
+#	0xb0e010	github.com/drausin/libri/libri/cmd.Execute+0x30						/go/src/github.com/drausin/libri/libri/cmd/root.go:29
+#	0xb12c0f	main.main+0x1f										/go/src/github.com/drausin/libri/libri/main.go:8
+#	0x4fba8c	runtime.main+0x20c									/usr/local/go/src/runtime/proc.go:185
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2f7b 0xa3a6d2 0x52b721
+#	0xa3a6d1	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).Start.func1+0x51	/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:144
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2f7b 0xa4cfd3 0x52b721
+#	0xa4cfd2	github.com/drausin/libri/libri/librarian/server.(*Librarian).listenAndServe.func1+0x52	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:169
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2f7b 0xa4d9e4 0x52b721
+#	0xa4d9e3	github.com/drausin/libri/libri/librarian/server.(*Librarian).startAuxRoutines.func3+0x33	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:228
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x98bed0 0x52b721
+#	0x98becf	github.com/drausin/libri/vendor/github.com/rjeczalik/notify.(*nonrecursiveTree).dispatch+0xbf	/go/src/github.com/drausin/libri/vendor/github.com/rjeczalik/notify/tree_nonrecursive.go:36
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x98c0a8 0x52b721
+#	0x98c0a7	github.com/drausin/libri/vendor/github.com/rjeczalik/notify.(*nonrecursiveTree).internal+0x87	/go/src/github.com/drausin/libri/vendor/github.com/rjeczalik/notify/tree_nonrecursive.go:81
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x9d7da4 0x52b721
+#	0x9d7da3	github.com/drausin/libri/libri/common/subscribe.(*from).Fanout+0x233	/go/src/github.com/drausin/libri/libri/common/subscribe/from.go:80
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0x9da023 0x9dad41 0x52b721
+#	0x9da022	github.com/drausin/libri/libri/common/subscribe.(*to).dedup+0x62	/go/src/github.com/drausin/libri/libri/common/subscribe/to.go:251
+#	0x9dad40	github.com/drausin/libri/libri/common/subscribe.(*to).Begin.func1+0x50	/go/src/github.com/drausin/libri/libri/common/subscribe/to.go:160
+
+1 @ 0x4fbf2c 0x4fc01e 0x4d32d4 0x4d2fbb 0xa39983 0x52b721
+#	0xa39982	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).replicate+0x92	/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:258
+
+1 @ 0x4fbf2c 0x4fc01e 0x50d6c4 0x50d2e9 0x5428d2 0x8980fe 0x897a10 0x52b721
+#	0x50d2e8	sync.runtime_Semacquire+0x38								/usr/local/go/src/runtime/sema.go:56
+#	0x5428d1	sync.(*WaitGroup).Wait+0x71								/usr/local/go/src/sync/waitgroup.go:131
+#	0x8980fd	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).serveStreams+0x14d	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:626
+#	0x897a0f	github.com/drausin/libri/vendor/google.golang.org/grpc.(*Server).handleRawConn+0x5df	/go/src/github.com/drausin/libri/vendor/google.golang.org/grpc/server.go:574
+
+1 @ 0x4fbf2c 0x4fc01e 0x50d6c4 0x50d2e9 0x5428d2 0xa38897 0xa4dcec 0x52b721
+#	0x50d2e8	sync.runtime_Semacquire+0x38									/usr/local/go/src/runtime/sema.go:56
+#	0x5428d1	sync.(*WaitGroup).Wait+0x71									/usr/local/go/src/sync/waitgroup.go:131
+#	0xa38896	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).Start+0x166		/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:161
+#	0xa4dceb	github.com/drausin/libri/libri/librarian/server.(*Librarian).startAuxRoutines.func5+0x4b	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:245
+
+1 @ 0x4fbf2c 0x4fc01e 0x519d20 0xa3a852 0x52b721
+#	0x519d1f	time.Sleep+0x12f										/usr/local/go/src/runtime/time.go:65
+#	0xa3a851	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).verifyValue.func1+0x31	/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:209
+
+1 @ 0x4fbf2c 0x50c348 0x528380 0x52b721
+#	0x4fbf2b	runtime.gopark+0x12b		/usr/local/go/src/runtime/proc.go:277
+#	0x50c347	runtime.selectgo+0x1137		/usr/local/go/src/runtime/select.go:395
+#	0x52837f	runtime.ensureSigM.func1+0x21f	/usr/local/go/src/runtime/signal_unix.go:511
+
+1 @ 0x4fbf2c 0x50c348 0x9d972e 0xa4da6c 0x52b721
+#	0x9d972d	github.com/drausin/libri/libri/common/subscribe.(*to).Begin+0x24d				/go/src/github.com/drausin/libri/libri/common/subscribe/to.go:196
+#	0xa4da6b	github.com/drausin/libri/libri/librarian/server.(*Librarian).startAuxRoutines.func4+0x4b	/go/src/github.com/drausin/libri/libri/librarian/server/lifecycle.go:237
+
+1 @ 0x4fbf2c 0x50c348 0xa3944a 0xa3b3bc 0x917e23 0x917f24 0x915785 0x917782 0x916b77 0xa38b86 0x52b721
+#	0xa39449	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).verifyValue+0x7e9								/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:250
+#	0xa3b3bb	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).(github.com/drausin/libri/libri/librarian/server/replicate.verifyValue)-fm+0x5b	/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:192
+#	0x917e22	github.com/drausin/libri/libri/common/storage.(*documentSLD).Iterate.func1+0x82										/go/src/github.com/drausin/libri/libri/common/storage/namespace_storer.go:142
+#	0x917f23	github.com/drausin/libri/libri/common/storage.(*kvdbSLD).Iterate.func1+0xe3										/go/src/github.com/drausin/libri/libri/common/storage/storer.go:92
+#	0x915784	github.com/drausin/libri/libri/common/db.(*RocksDB).Iterate+0x264											/go/src/github.com/drausin/libri/libri/common/db/kvdb.go:139
+#	0x917781	github.com/drausin/libri/libri/common/storage.(*kvdbSLD).Iterate+0x2c1											/go/src/github.com/drausin/libri/libri/common/storage/storer.go:85
+#	0x916b76	github.com/drausin/libri/libri/common/storage.(*documentSLD).Iterate+0x146										/go/src/github.com/drausin/libri/libri/common/storage/namespace_storer.go:141
+#	0xa38b85	github.com/drausin/libri/libri/librarian/server/replicate.(*replicator).verify+0x195									/go/src/github.com/drausin/libri/libri/librarian/server/replicate/replicater.go:192
+
+1 @ 0x770520 0x52b721
+#	0x770520	net/http.(*connReader).backgroundRead+0x0	/usr/local/go/src/net/http/server.go:659
+
+1 @ 0x9575c2 0x9573c0 0x953f1b 0x9f6f98 0x9f729b 0x776ec4 0x778570 0x779ae4 0x775d9d 0x52b721
+#	0x9575c1	runtime/pprof.writeRuntimeProfile+0xa1	/usr/local/go/src/runtime/pprof/pprof.go:637
+#	0x9573bf	runtime/pprof.writeGoroutine+0x9f	/usr/local/go/src/runtime/pprof/pprof.go:599
+#	0x953f1a	runtime/pprof.(*Profile).WriteTo+0x3aa	/usr/local/go/src/runtime/pprof/pprof.go:310
+#	0x9f6f97	net/http/pprof.handler.ServeHTTP+0x1b7	/usr/local/go/src/net/http/pprof/pprof.go:237
+#	0x9f729a	net/http/pprof.Index+0x1da		/usr/local/go/src/net/http/pprof/pprof.go:248
+#	0x776ec3	net/http.HandlerFunc.ServeHTTP+0x43	/usr/local/go/src/net/http/server.go:1918
+#	0x77856f	net/http.(*ServeMux).ServeHTTP+0x12f	/usr/local/go/src/net/http/server.go:2254
+#	0x779ae3	net/http.serverHandler.ServeHTTP+0xb3	/usr/local/go/src/net/http/server.go:2619
+#	0x775d9c	net/http.(*conn).serve+0x71c		/usr/local/go/src/net/http/server.go:1801
+

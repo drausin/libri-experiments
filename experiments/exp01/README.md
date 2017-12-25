@@ -96,10 +96,10 @@ decreases markedly, especially clearly in the p50s.
 At the end of the experiment, we realized that we still had the libri-experimenter CPU pod limit 
 set to 100m (i.e., 10% of node CPU), which was likely throttling the actual queries it could emit.
 
-In trial 11, we bumped the experimenter limit up to 300m and librarian limits up to 200m and 3GB 
-RAM. We saw, for the first time, significant performance degradation, with multi-second p50 & p95s 
-as well as a few librarian crashes and the first observation of `Store` query errors from one of 
-the librarians.   
+In trial 11, we bumped the UDP to 512K and along with the experimenter limit up to 300m and 
+librarian limits up to 200m and 3GB RAM. We saw, for the first time, significant performance 
+degradation, with multi-second p50 & p95s as well as a few librarian crashes and the first 
+observation of `Store` query errors from one of the librarians.   
 
 Given the importance of the page cache shown in trial 10 and the performance issues in trial 11, we
 were left thinking that the performance issues are likely due to our completely-untuned RocksDB 
@@ -111,8 +111,66 @@ else (other than RocksDB)
 - move librarians from standard spinning to network-attached SSDs (which RocksDB is primarily built 
 for) to (perhaps ?) decrease write bottleneck from page cache to disk
 - tune some RocksDB options, including
-    - background thread parallelism (1 -> 4)
+    - background thread parallelism (1 -> 2)
     - optimizing for point lookups (with bloom filters and a block cache of 1GB)
     - (monitoring only) increasing stats dump to every 10 mins
      
-    
+In trial 12, the experimenter authors used in-memory docSLDs (c.f., 
+[libri #159](https://github.com/drausin/libri/pull/159)) with the profiler enabled (c.f., 
+[libri-experiments #8](https://github.com/drausin/libri-experiments/pull/8)), and we were able to 
+see as expected that the experimenter memory usage dropped to be (on average) below that of the 
+librarians. Investigating the experimentor heap dump also shows that the majority of the its 
+memory usage comes from simply serializing the bytes to the wire. 
+```
+$ go tool pprof -inuse_space libri-experimenter.heap.prof
+...
+(pprof) top5
+Showing nodes accounting for 653.44MB, 92.96% of 702.91MB total
+Dropped 120 nodes (cum <= 3.51MB)
+Showing top 5 nodes out of 59
+      flat  flat%   sum%        cum   cum%
+  542.39MB 77.16% 77.16%   542.39MB 77.16%  github.com/drausin/libri-experiments/vendor/github.com/golang/protobuf/proto.(*Buffer).EncodeRawBytes /go/src/github.com/drausin/libri-experiments/vendor/github.com/golang/protobuf/proto/encode.go
+   44.87MB  6.38% 83.55%    44.87MB  6.38%  bufio.NewWriterSize /usr/local/go/src/bufio/bufio.go
+   41.78MB  5.94% 89.49%    41.78MB  5.94%  bufio.NewReaderSize /usr/local/go/src/bufio/bufio.go
+   13.20MB  1.88% 91.37%    13.20MB  1.88%  github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2.NewFramer.func1 /go/src/github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2/frame.go
+   11.19MB  1.59% 92.96%    11.19MB  1.59%  github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2.(*Framer).WriteDataPadded /go/src/github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2/frame.go
+(pprof)
+```
+As in trial 10, performance started degrading once the librarians started running out of page cache.
+
+In trial 13, we tried replacing the librarian spinning disks with SSDs (since RocksDB is optimized 
+for those), thinking perhaps that a disk throughput bottleneck was causing the librarians to use 
+more page cache than they should. This change ended up having little effect on the overall librarian
+memory usage, though perhaps the p50s were a bit better.
+
+In trial 14, we tried tweaking some of the RocksDB options (c.f., 
+[libri #160](https://github.com/drausin/libri/pull/160)), in particular 
+- 1 GB block cache
+- 32 K block size
+- 10-bit Bloom filters on tables
+- 500 MB memory table
+thinking that the larger block cache and bloom filters especially would relieve librarian memory 
+pressure. These tweaks did improve p95 and p50 latencies compared to trial 13 as follows
+- Get p95: 250-1000ms -> 250ms
+- Get p50: 30-80ms -> 20-30ms
+- Put p95: 400ms -> 1500ms
+- Put p50: 100-200ms -> 40-60ms
+We omit the severe performance degradations caused by page cache exhaustion at the end when the 
+librarians ran out of their 3GB memory budget. We are glad to see these improvements, but continued 
+existence of the underlying memory usage issue indicates that RocksDB probably isn't the main 
+culprit. The other main culprit is probably grpc connections, so subsequent trials should look into
+- setting `MaxConcurrentStreams` on the grpc server (as opposed to the unbounded default)
+- try just having a single author (with 100x more requests per day), since maybe the problem is just
+too many client connections to each librarian
+
+In trial 15, we set `MaxConcurrentStreams = 128` (c.f., 
+[libri #161](https://github.com/drausin/libri/pull/162)) and noticed that memory usage across
+librarians was more consistent, but it didn't really change the cumulative memory usage of either
+the experimenter or librarians.
+
+In trial 16, we used moved from 100 -> 1 authors but from 2560 -> 256000 uploads per author. This
+change completely solved the experimenter memory issue, with it now using ~50 MB RAM instead of 
+previously it's consumer more and more until it reached the limit.
+
+  
+
