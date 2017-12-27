@@ -208,4 +208,3 @@ librarians's routing table. This change reduced Store request differential from 
 it also reduced the latencies by at least 50%.
 
   
-
