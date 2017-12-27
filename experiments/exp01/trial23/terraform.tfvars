@@ -3,7 +3,7 @@ libri_exp_version = "snapshot-949fb64"
 duration = "30m"
 
 num_authors = 1
-docs_per_day = 256000
+docs_per_day = 512000
 shares_per_upload = 2
 num_uploaders = 64
 num_downloaders = 192
@@ -16,7 +16,7 @@ cluster_host = "gcp"
 
 # librarians
 num_librarians = 8
-librarian_libri_version = "snapshot-31e91bd"
+librarian_libri_version = "snapshot-8b3f886"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
 librarian_cpu_limit = "250m"

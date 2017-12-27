@@ -149,6 +149,7 @@ In trial 14, we tried tweaking some of the RocksDB options (c.f.,
 - 32 K block size
 - 10-bit Bloom filters on tables
 - 500 MB memory table
+
 thinking that the larger block cache and bloom filters especially would relieve librarian memory 
 pressure. These tweaks did improve p95 and p50 latencies compared to trial 13 as follows
 - Get p95: 250-1000ms -> 250ms
@@ -164,13 +165,47 @@ culprit. The other main culprit is probably grpc connections, so subsequent tria
 too many client connections to each librarian
 
 In trial 15, we set `MaxConcurrentStreams = 128` (c.f., 
-[libri #161](https://github.com/drausin/libri/pull/162)) and noticed that memory usage across
+[libri #162](https://github.com/drausin/libri/pull/162)) and noticed that memory usage across
 librarians was more consistent, but it didn't really change the cumulative memory usage of either
 the experimenter or librarians.
 
 In trial 16, we used moved from 100 -> 1 authors but from 2560 -> 256000 uploads per author. This
 change completely solved the experimenter memory issue, with it now using ~50 MB RAM instead of 
 previously it's consumer more and more until it reached the limit.
+
+In trial 17, we bumped the librarian RAM limit up to 5 GB and ran the experimenter for 90 minutes, 
+thinking that possibly the librarians just had steady-state memory usage higher than the 3 GB used
+previously. Unfortunately, the linear memory growth still occurred, and the librarians eventually
+hit the new memory limit.
+
+In trial 18, we tested [libri #163](https://github.com/drausin/libri/pull/163), which updated the
+librarian peer connection handling to actively disconnect one of the connections when merging two
+peers that both have a connection. This hypothesis was that the librarian servers were leaking
+connections (i.e., creating redundant ones and not cleaning up existing ones) when peers were 
+being added to the routing table. Unfortunately, the change didn't have much/any effect on the
+librarian memory usage over the course of the experiment.
+
+Trial 19 was essentially the same as trial 16 but with profiling enabled for the librarians so we
+could look at goroutine and heap dumps. These confirmed our suspicians that an ever-increasing 
+number of goroutines were being dedicated to grpc connection handling. These results convinced us
+that managing the librarian connections on the `Peer` object is not a manageable approach.   
+
+Trial 20 used the new connection pooling implemented in 
+[libri #164](https://github.com/drausin/libri/pull/164), and we finally found librarian memory 
+usage under control. Profiling a librarian a few times over the course of the experiment shows only 
+8x goroutines for each of the 8 different types of goroutines run by a grpc connection. (See 
+[librarians-0.goroutine.prof](trial20/librarians-0.goroutine.prof).)
+
+With the librarian memory usage under control, we doubled our load up to 512K UDP in trial 21. A few
+of the librarians had noticeably worse p95 latencies than the others, and closer inspection revealed
+that they were receiving up to 4x more Store queries than some of the other librarians. We also
+observed periodic RocksDB file operations (e.g., compaction) to have a non-trivial effect on the p95
+latencies when they happen.
+
+In trial 22, we tested [libri #165](https://github.com/drausin/libri/pull/165), which fixes a bug
+we found upon digging into the ordering (or lack thereof) of peers when being queried from a
+librarians's routing table. This change reduced Store request differential from ~4x down to ~2x, but
+it also reduced the latencies by at least 50%.
 
   
 
