@@ -69,6 +69,8 @@ const (
 	DefaultLogLevel = "INFO"
 
 	localProfilerPort = 20300
+
+	warmUpTime = 30 * time.Second
 )
 
 // Parameters contains the parameters that define the experiment.
@@ -211,12 +213,18 @@ func (r *Runner) stop() {
 
 func (r *Runner) generateUploads() {
 	done := false
+	start := time.Now()
 	for !done {
 		select {
 		case <-r.done:
 			done = true
 		default:
 			wait := r.nextUploadWait.sample()
+			if time.Now().Before(start.Add(warmUpTime / 2)) {
+				wait *= 4
+			} else if time.Now().Before(start.Add(warmUpTime)) {
+				wait *= 2
+			}
 			r.logger.Debug("waiting for next upload", zap.Duration("wait_time", wait))
 			time.Sleep(wait)
 			r.toUpload <- r.upDocs.sample()
