@@ -8,6 +8,8 @@ that represent discrete steps toward that question/goal. In this experiment docu
 strive to meet the following standards:
 - trials should be **reproducible**, so all the configs and shell commands are given for 
 anyone to run the same trial themselves
+- discussion should bias toward including **implementation details**, and so should links to PRs 
+and commits whenever possible
 - **raw result data** should be included, be they Grafana screenshots or Prometheus query results 
 - trials should be **incremental**, meaning that they rarely contain nice, tidy results but more
 honestly reflect the actual experimental progression
