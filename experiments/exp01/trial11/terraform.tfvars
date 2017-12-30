@@ -2,12 +2,11 @@
 libri_exp_version = "snapshot-6adf9dd"
 duration = "15m"
 
-# translates to 1000 UPD or ~0.09 QPS
 num_authors = 100
 docs_per_day = 5120
 shares_per_upload = 2
-num_uploaders = 32
-num_downloaders = 96
+num_uploaders = 64
+num_downloaders = 192
 
 # this shape and rate imply a mean of ~256 KB and a 95% CI of [~18, ~794] KB.
 content_size_kb_gamma_shape = 1.5

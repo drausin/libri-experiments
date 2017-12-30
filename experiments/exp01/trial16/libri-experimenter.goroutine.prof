@@ -1,0 +1,159 @@
+goroutine profile: total 220
+60 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2fbb 0xba44df 0x52bc91
+#	0xba44de	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doUploads+0x9e	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:230
+
+34 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2fbb 0xba4b63 0x52bc91
+#	0xba4b62	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doDownloads+0x92	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:257
+
+27 @ 0x4fc49c 0x4fc58e 0x51a290 0xba4cc7 0x52bc91
+#	0x51a28f	time.Sleep+0x12f								/usr/local/go/src/runtime/time.go:65
+#	0xba4cc6	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doDownloads+0x1f6	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:260
+
+16 @ 0x4fc49c 0x4f75da 0x4f6bd7 0x5678ae 0x56792d 0x5686ca 0x5dccb2 0x5ef1ed 0x61110b 0x545146 0x5452b8 0x90b29b 0x90bc04 0x940583 0x52bc91
+#	0x4f6bd6	internal/poll.runtime_pollWait+0x56									/usr/local/go/src/runtime/netpoll.go:173
+#	0x5678ad	internal/poll.(*pollDesc).wait+0xad									/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56792c	internal/poll.(*pollDesc).waitRead+0x3c									/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x5686c9	internal/poll.(*FD).Read+0x189										/usr/local/go/src/internal/poll/fd_unix.go:125
+#	0x5dccb1	net.(*netFD).Read+0x51											/usr/local/go/src/net/fd_unix.go:202
+#	0x5ef1ec	net.(*conn).Read+0x6c											/usr/local/go/src/net/net.go:176
+#	0x61110a	bufio.(*Reader).Read+0x30a										/usr/local/go/src/bufio/bufio.go:213
+#	0x545145	io.ReadAtLeast+0x85											/usr/local/go/src/io/io.go:309
+#	0x5452b7	io.ReadFull+0x57											/usr/local/go/src/io/io.go:327
+#	0x90b29a	github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2.readFrameHeader+0x7a			/go/src/github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2/frame.go:237
+#	0x90bc03	github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2.(*Framer).ReadFrame+0xa3		/go/src/github.com/drausin/libri-experiments/vendor/golang.org/x/net/http2/frame.go:492
+#	0x940582	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.(*http2Client).reader+0xc2	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/http2_client.go:1167
+
+16 @ 0x4fc49c 0x50c8b8 0x951036 0x95270e 0x52bc91
+#	0x951035	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.loopyWriter+0x3c5		/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/transport.go:719
+#	0x95270d	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.newHTTP2Client.func3+0x5d	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/http2_client.go:302
+
+16 @ 0x4fc49c 0x50c8b8 0x95dba6 0x52bc91
+#	0x95dba5	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*ccBalancerWrapper).watcher+0x155	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/balancer_conn_wrappers.go:120
+
+16 @ 0x4fc49c 0x50c8b8 0x9652e6 0x97926e 0x52bc91
+#	0x9652e5	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*addrConn).transportMonitor+0x165	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/clientconn.go:1036
+#	0x97926d	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*addrConn).connect.func1+0x1cd	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/clientconn.go:747
+
+16 @ 0x4fc49c 0x50c8b8 0x9695fc 0x52bc91
+#	0x9695fb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*ccResolverWrapper).watcher+0x1ab	/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/resolver_conn_wrapper.go:99
+
+3 @ 0x4fc49c 0x50c8b8 0x94fb76 0x95e8cc 0x9601fc 0x95f6dc 0x95f7d1 0x9881c2 0x9e3081 0x9dbac8 0x9dba18 0x9e259e 0x9e3931 0xa529a3 0xa5265a 0xaafbbe 0xba5233 0xba4e81 0x52bc91
+#	0x94fb75	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.(*Stream).Header+0x145				/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/transport.go:283
+#	0x95e8cb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.recvResponse+0xab						/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:49
+#	0x9601fb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.invoke+0x9fb							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:301
+#	0x95f6db	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*ClientConn).Invoke+0x19b					/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:150
+#	0x95f7d0	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.Invoke+0xc0							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:158
+#	0x9881c1	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api.(*librarianClient).Get+0xd1		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:758
+#	0x9e3080	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryGetter).Get.func1+0xe0	/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:142
+#	0x9dbac7	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.RetryNotify+0x87					/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:37
+#	0x9dba17	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.Retry+0x47						/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:25
+#	0x9e259d	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryGetter).Get+0x11d		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:151
+#	0x9e3930	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish.(*acquirer).Acquire+0x110		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish/acquirer.go:42
+#	0xa529a2	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship.(*receiver).ReceiveEnvelope+0xa2	/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship/receiver.go:77
+#	0xa52659	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship.(*receiver).ReceiveEntry+0x59		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship/receiver.go:54
+#	0xaafbbd	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author.(*Author).Download+0x1ed			/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/author.go:248
+#	0xba5232	github.com/drausin/libri-experiments/pkg/sim.(*querierImpl).download+0x52							/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:292
+#	0xba4e80	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doDownloads+0x3b0							/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:265
+
+3 @ 0x4fc49c 0x50c8b8 0x94fb76 0x95e8cc 0x9601fc 0x95f6dc 0x95f7d1 0x988312 0x9e3286 0x9dbac8 0x9dba18 0x9e27de 0x9e4240 0xa533ac 0xab05df 0xba529f 0xba478e 0x52bc91
+#	0x94fb75	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.(*Stream).Header+0x145				/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/transport.go:283
+#	0x95e8cb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.recvResponse+0xab						/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:49
+#	0x9601fb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.invoke+0x9fb							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:301
+#	0x95f6db	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*ClientConn).Invoke+0x19b					/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:150
+#	0x95f7d0	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.Invoke+0xc0							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:158
+#	0x988311	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api.(*librarianClient).Put+0xd1		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:767
+#	0x9e3285	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryPutter).Put.func1+0xd5	/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:180
+#	0x9dbac7	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.RetryNotify+0x87					/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:37
+#	0x9dba17	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.Retry+0x47						/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:25
+#	0x9e27dd	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryPutter).Put+0x11d		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:183
+#	0x9e423f	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish.(*publisher).Publish+0x1cf		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish/publisher.go:147
+#	0xa533ab	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship.(*shipper).ShipEnvelope+0x19b		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship/shipper.go:79
+#	0xab05de	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author.(*Author).ShareEnvelope+0x23e			/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/author.go:299
+#	0xba529e	github.com/drausin/libri-experiments/pkg/sim.(*querierImpl).share+0x3e								/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:298
+#	0xba478d	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doUploads+0x34d								/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:237
+
+1 @ 0x4de912 0x512596 0x8c6212 0x52bc91
+#	0x512595	os/signal.signal_recv+0xa5	/usr/local/go/src/runtime/sigqueue.go:131
+#	0x8c6211	os/signal.loop+0x21		/usr/local/go/src/os/signal/signal_unix.go:22
+
+1 @ 0x4fc49c 0x4f75da 0x4f6bd7 0x5678ae 0x56792d 0x569d82 0x5dd6d2 0x5f974e 0x5f7b29 0x7e8daf 0x7e7a52 0x7e7799 0x7e892f 0xba697b 0x52bc91
+#	0x4f6bd6	internal/poll.runtime_pollWait+0x56					/usr/local/go/src/runtime/netpoll.go:173
+#	0x5678ad	internal/poll.(*pollDesc).wait+0xad					/usr/local/go/src/internal/poll/fd_poll_runtime.go:85
+#	0x56792c	internal/poll.(*pollDesc).waitRead+0x3c					/usr/local/go/src/internal/poll/fd_poll_runtime.go:90
+#	0x569d81	internal/poll.(*FD).Accept+0x1e1					/usr/local/go/src/internal/poll/fd_unix.go:334
+#	0x5dd6d1	net.(*netFD).accept+0x41						/usr/local/go/src/net/fd_unix.go:238
+#	0x5f974d	net.(*TCPListener).accept+0x2d						/usr/local/go/src/net/tcpsock_posix.go:136
+#	0x5f7b28	net.(*TCPListener).AcceptTCP+0x48					/usr/local/go/src/net/tcpsock.go:234
+#	0x7e8dae	net/http.tcpKeepAliveListener.Accept+0x2e				/usr/local/go/src/net/http/server.go:3120
+#	0x7e7a51	net/http.(*Server).Serve+0x1b1						/usr/local/go/src/net/http/server.go:2695
+#	0x7e7798	net/http.(*Server).ListenAndServe+0xa8					/usr/local/go/src/net/http/server.go:2636
+#	0x7e892e	net/http.ListenAndServe+0x7e						/usr/local/go/src/net/http/server.go:2882
+#	0xba697a	github.com/drausin/libri-experiments/pkg/sim.(*Runner).Run.func1+0xba	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:160
+
+1 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2f7b 0xab3c6b 0x52bc91
+#	0xab3c6a	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author.NewAuthor.func1+0x3a	/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/author.go:175
+
+1 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2f7b 0xba409f 0xbb41f7 0xbb4582 0x66463a 0x664e0e 0x664adb 0xbb39d1 0xbb4750 0x4fbffd 0x52bc91
+#	0xba409e	github.com/drausin/libri-experiments/pkg/sim.(*Runner).Run+0x26e				/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:196
+#	0xbb41f6	github.com/drausin/libri-experiments/pkg/cmd.runExperiment+0x116				/go/src/github.com/drausin/libri-experiments/pkg/cmd/run.go:76
+#	0xbb4581	github.com/drausin/libri-experiments/pkg/cmd.glob..func1+0x21					/go/src/github.com/drausin/libri-experiments/pkg/cmd/run.go:30
+#	0x664639	github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra.(*Command).execute+0x479	/go/src/github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra/command.go:698
+#	0x664e0d	github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra.(*Command).ExecuteC+0x30d	/go/src/github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra/command.go:783
+#	0x664ada	github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra.(*Command).Execute+0x2a	/go/src/github.com/drausin/libri-experiments/vendor/github.com/spf13/cobra/command.go:736
+#	0xbb39d0	github.com/drausin/libri-experiments/pkg/cmd.Execute+0x30					/go/src/github.com/drausin/libri-experiments/pkg/cmd/root.go:27
+#	0xbb474f	main.main+0x1f											/go/src/github.com/drausin/libri-experiments/pkg/main.go:6
+#	0x4fbffc	runtime.main+0x20c										/usr/local/go/src/runtime/proc.go:185
+
+1 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2f7b 0xba6b94 0x52bc91
+#	0xba6b93	github.com/drausin/libri-experiments/pkg/sim.(*Runner).Run.func2+0x33	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:168
+
+1 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2fbb 0xa34bc0 0x52bc91
+#	0xa34bbf	github.com/drausin/libri-experiments/vendor/github.com/rjeczalik/notify.(*nonrecursiveTree).dispatch+0xbf	/go/src/github.com/drausin/libri-experiments/vendor/github.com/rjeczalik/notify/tree_nonrecursive.go:36
+
+1 @ 0x4fc49c 0x4fc58e 0x4d32d4 0x4d2fbb 0xa34d98 0x52bc91
+#	0xa34d97	github.com/drausin/libri-experiments/vendor/github.com/rjeczalik/notify.(*nonrecursiveTree).internal+0x87	/go/src/github.com/drausin/libri-experiments/vendor/github.com/rjeczalik/notify/tree_nonrecursive.go:81
+
+1 @ 0x4fc49c 0x4fc58e 0x51a290 0xba439c 0x52bc91
+#	0x51a28f	time.Sleep+0x12f								/usr/local/go/src/runtime/time.go:65
+#	0xba439b	github.com/drausin/libri-experiments/pkg/sim.(*Runner).generateUploads+0x1ab	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:221
+
+1 @ 0x4fc49c 0x4fc58e 0x51a290 0xba6c31 0x52bc91
+#	0x51a28f	time.Sleep+0x12f							/usr/local/go/src/runtime/time.go:65
+#	0xba6c30	github.com/drausin/libri-experiments/pkg/sim.(*Runner).Run.func3+0x30	/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:173
+
+1 @ 0x4fc49c 0x50c8b8 0x5288f0 0x52bc91
+#	0x4fc49b	runtime.gopark+0x12b		/usr/local/go/src/runtime/proc.go:277
+#	0x50c8b7	runtime.selectgo+0x1137		/usr/local/go/src/runtime/select.go:395
+#	0x5288ef	runtime.ensureSigM.func1+0x21f	/usr/local/go/src/runtime/signal_unix.go:511
+
+1 @ 0x4fc49c 0x50c8b8 0x94fb76 0x95e8cc 0x9601fc 0x95f6dc 0x95f7d1 0x988312 0x9e3286 0x9dbac8 0x9dba18 0x9e27de 0x9e4240 0xa52fde 0xaaf6ce 0xba5168 0xba453c 0x52bc91
+#	0x94fb75	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport.(*Stream).Header+0x145				/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/transport/transport.go:283
+#	0x95e8cb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.recvResponse+0xab						/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:49
+#	0x9601fb	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.invoke+0x9fb							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:301
+#	0x95f6db	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.(*ClientConn).Invoke+0x19b					/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:150
+#	0x95f7d0	github.com/drausin/libri-experiments/vendor/google.golang.org/grpc.Invoke+0xc0							/go/src/github.com/drausin/libri-experiments/vendor/google.golang.org/grpc/call.go:158
+#	0x988311	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api.(*librarianClient).Put+0xd1		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/api/librarian.pb.go:767
+#	0x9e3285	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryPutter).Put.func1+0xd5	/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:180
+#	0x9dbac7	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.RetryNotify+0x87					/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:37
+#	0x9dba17	github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff.Retry+0x47						/go/src/github.com/drausin/libri-experiments/vendor/github.com/cenkalti/backoff/retry.go:25
+#	0x9e27dd	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client.(*retryPutter).Put+0x11d		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/librarian/client/retry.go:183
+#	0x9e423f	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish.(*publisher).Publish+0x1cf		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/publish/publisher.go:147
+#	0xa52fdd	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship.(*shipper).ShipEntry+0xed		/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/io/ship/shipper.go:62
+#	0xaaf6cd	github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author.(*Author).Upload+0x35d			/go/src/github.com/drausin/libri-experiments/vendor/github.com/drausin/libri/libri/author/author.go:232
+#	0xba5167	github.com/drausin/libri-experiments/pkg/sim.(*querierImpl).upload+0x57								/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:287
+#	0xba453b	github.com/drausin/libri-experiments/pkg/sim.(*Runner).doUploads+0xfb								/go/src/github.com/drausin/libri-experiments/pkg/sim/runner.go:231
+
+1 @ 0x7de100 0x52bc91
+#	0x7de100	net/http.(*connReader).backgroundRead+0x0	/usr/local/go/src/net/http/server.go:659
+
+1 @ 0x8bcc22 0x8bca20 0x8b957b 0x8c56b8 0x8c59bb 0x7e4aa4 0x7e6150 0x7e76c4 0x7e397d 0x52bc91
+#	0x8bcc21	runtime/pprof.writeRuntimeProfile+0xa1	/usr/local/go/src/runtime/pprof/pprof.go:637
+#	0x8bca1f	runtime/pprof.writeGoroutine+0x9f	/usr/local/go/src/runtime/pprof/pprof.go:599
+#	0x8b957a	runtime/pprof.(*Profile).WriteTo+0x3aa	/usr/local/go/src/runtime/pprof/pprof.go:310
+#	0x8c56b7	net/http/pprof.handler.ServeHTTP+0x1b7	/usr/local/go/src/net/http/pprof/pprof.go:237
+#	0x8c59ba	net/http/pprof.Index+0x1da		/usr/local/go/src/net/http/pprof/pprof.go:248
+#	0x7e4aa3	net/http.HandlerFunc.ServeHTTP+0x43	/usr/local/go/src/net/http/server.go:1918
+#	0x7e614f	net/http.(*ServeMux).ServeHTTP+0x12f	/usr/local/go/src/net/http/server.go:2254
+#	0x7e76c3	net/http.serverHandler.ServeHTTP+0xb3	/usr/local/go/src/net/http/server.go:2619
+#	0x7e397c	net/http.(*conn).serve+0x71c		/usr/local/go/src/net/http/server.go:1801
+
