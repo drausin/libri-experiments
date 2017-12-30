@@ -7,18 +7,22 @@ primarily by metrics on the aggregate librarians:
 - Put/Get response times (p50, p95)
 - availability %
 
+Our goal over the course of this experiment was to achieve sub-second latency for Get and Put 
+requests at a million average users with reasonable resource usage (e.g., less than 1 CPU and 
+8 GB ram per librarian).
+
 ### Methods & Results
 
-#### Naive user load increases
+#### Experiment setup
 
 The main independent variable for now is the number of uploads per day (UPD), which is just the 
 number of authors times the assumed number of documents each author uploads per day. We keep 
 number of authors fixed at 100 to avoid practical issues like too many open RocksDB files, but
-the "real" assumption is that UPL is a rough proxy for number of authors (i.e., users), since we 
+the "real" assumption is that UPD is a rough proxy for number of authors (i.e., users), since we 
 don't expect each author to upload more that one document per day (at least for now).  
 
 Each upload translates to 8 Put/Get queries:
-- Put entry (always will just be a single-page entry b/c content distribution size is always < 2 MB)
+- Put entry (always will just be a single-page entry b/c content size distribution is always < 2 MB)
 - Put envelope (self reader)
 - 2x Put envelope (shared authors)
 - 2x Get envelope (shared authors)
@@ -29,6 +33,69 @@ Get/Put p50 & p95 latencies and librarian CPU & memory usage. Each trial ran for
 The latencies and resources reported below are eyeballed from Grafana (via Prometheus metrics) 
 screenshots. We report roughly the highest value across all the librarians over the duration of
 the experiment. 
+
+We store the configuration and results of each trial in a separate directory containing the 
+following
+- `terraform.tfvars` defining the parameters (i.e., independent variables) of the experiment, both 
+for the libri cluster and the user simulator  
+- `img` directory with Grafana (and sometimes Prometheus) screenshots representing the results of 
+the experiment
+- `libri.yml` Kubernetes configuration file for the libri cluster
+- `libri-sim.yml` Kubernetes configuration file for the user load simulator
+- `variables.tf` Kubernetes variable definition file (only for libri variables)  
+
+The shell commands used to initialize the experiment were roughly
+```bash
+cd ~/.go/src/github.com/drausin/libri/deploy/cloud
+EXP_NUM="01"
+TRIAL_NUM="01"
+CLUSTER_DIR="~/.go/src/github.com/drausin/libri-experiments/experiments/exp${EXP_NUM}/trial${TRIAL_NUM}"
+CLUSTER_NAME="exp${EXP_NUM}-trial${TRIAL_NUM}"
+go run cluster.go init gcp --clusterDir "${CLUSTER_DIR}" --clusterName ${CLUSTER_NAME} \
+--bucket my-clusters-bucket --gcpProject my-gcp-project
+```
+We then edited the `terraform.tfvars` (often just copying it from the previous trial and modifying 
+slightly) to set the appropriate variables for the libri cluster and experimenter pod and generated 
+`libri-sim.yml` via
+```bash
+cd ~/.go/src/github.com/drausin/libri-experiments/deploy/cloud/
+go run gen.go -e "${CLUSTER_DIR}/terraform.tfvars" -d ${CLUSTER_DIR}
+```
+Occasionally we would hand-modify `libri-sim.yml` when we wanted to set a parameter not templated
+and handled by `gen.go` (e.g., experimenter pod resource limits). 
+
+To create the infrastructure (via Terraform) and start the cluster (via Kubernetes), we
+```bash
+cd ~/.go/src/github.com/drausin/libri/deploy/cloud
+go run cluster.go apply --clusterDir ${CLUSTER_DIR}
+```
+Once all the services are up, it would look like
+```bash
+$ gcloud compute instances list
+NAME                                          ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+gke-exp01-trial01-default-pool-a13cf8e1-hpxm  us-east1-b  n1-highmem-2               10.142.0.4   35.196.131.101  RUNNING
+gke-exp01-trial01-default-pool-a13cf8e1-l0vf  us-east1-b  n1-highmem-2               10.142.0.5   35.196.233.175  RUNNING
+$ kubectl get pods -o wide
+NAME                          READY     STATUS    RESTARTS   AGE       IP           NODE
+grafana-68785230-n7jrz        1/1       Running   0          4m        10.12.2.4    gke-exp01-trial01-default-pool-a13cf8e1-dczj
+librarians-0                  1/1       Running   0          4m        10.12.0.4    gke-exp01-trial01-default-pool-a13cf8e1-hpxm
+librarians-1                  1/1       Running   0          4m        10.12.3.5    gke-exp01-trial01-default-pool-a13cf8e1-l0vf
+librarians-2                  1/1       Running   0          3m        10.12.2.6    gke-exp01-trial01-default-pool-a13cf8e1-dczj
+librarians-3                  1/1       Running   0          3m        10.12.1.4    gke-exp01-trial01-default-pool-a13cf8e1-m15c
+librarians-4                  1/1       Running   0          2m        10.12.3.6    gke-exp01-trial01-default-pool-a13cf8e1-l0vf
+librarians-5                  1/1       Running   0          2m        10.12.0.5    gke-exp01-trial01-default-pool-a13cf8e1-hpxm
+librarians-6                  1/1       Running   0          2m        10.12.2.7    gke-exp01-trial01-default-pool-a13cf8e1-dczj
+librarians-7                  1/1       Running   0          1m        10.12.1.5    gke-exp01-trial01-default-pool-a13cf8e1-m15c
+node-exporter-4b5dm           1/1       Running   0          4m        10.142.0.4   gke-exp01-trial01-default-pool-a13cf8e1-hpxm
+node-exporter-7cglv           1/1       Running   0          4m        10.142.0.5   gke-exp01-trial01-default-pool-a13cf8e1-l0vf
+prometheus-3613992385-hc62q   1/1       Running   0          4m        10.12.2.5    gke-exp01-trial01-default-pool-a13cf8e1-dczj
+```
+At this point, we can start the user simulator
+```bash
+kubectl create -f "${CLUSTER_DIR}/libri-sim.yml"
+```
+
+#### Naive user load increases
 
 The results of these 8 trials are given below.
 

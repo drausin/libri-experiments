@@ -2,7 +2,6 @@
 libri_exp_version = "snapshot-6adf9dd"
 duration = "30m"
 
-# translates to 1000 UPD or ~0.09 QPS
 num_authors = 100
 docs_per_day = 2560
 shares_per_upload = 2
