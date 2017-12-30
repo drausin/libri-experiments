@@ -419,7 +419,7 @@ spec:
     spec:
       containers:
       - name: libriarian
-        image: daedalus2718/libri:snapshot-07a2a97
+        image: daedalus2718/libri:snapshot-8b3f886
         args: [
           "librarian", "start",
           "--nSubscriptions", "2",
@@ -459,7 +459,7 @@ spec:
           mountPath: /data
         resources:
           limits:
-            memory: 4G
+            memory: 5G
             cpu: 400m
 
       initContainers:

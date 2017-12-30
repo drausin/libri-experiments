@@ -30,5 +30,5 @@ spec:
       mountPath: /data
     resources:
       limits:
-        memory: 1G
+        memory: 500M
         cpu: 600m

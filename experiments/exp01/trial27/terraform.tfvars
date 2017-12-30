@@ -31,5 +31,5 @@ grafana_port = 30300
 prometheus_port = 30090
 
 # Kubernetes cluster
-num_cluster_nodes = 4
-cluster_node_machine_type = "n1-highmem-2"  # 2 CPUs, 13 GB RAM each
+num_cluster_nodes = 2
+cluster_node_machine_type = "n1-highmem-4"  # 4 CPUs, 26 GB RAM each

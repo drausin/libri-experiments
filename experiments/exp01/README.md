@@ -154,7 +154,7 @@ thinking that the larger block cache and bloom filters especially would relieve 
 pressure. These tweaks did improve p95 and p50 latencies compared to trial 13 as follows
 - Get p95: 250-1000ms -> 250ms
 - Get p50: 30-80ms -> 20-30ms
-- Put p95: 400ms -> 1500ms
+- Put p95: 400ms -> 150ms
 - Put p50: 100-200ms -> 40-60ms
 We omit the severe performance degradations caused by page cache exhaustion at the end when the 
 librarians ran out of their 3GB memory budget. We are glad to see these improvements, but continued 
@@ -196,6 +196,8 @@ usage under control. Profiling a librarian a few times over the course of the ex
 8x goroutines for each of the 8 different types of goroutines run by a grpc connection. (See 
 [librarians-0.goroutine.prof](trial20/librarians-0.goroutine.prof).)
 
+#### High UDP performance tuning
+
 With the librarian memory usage under control, we doubled our load up to 512K UDP in trial 21. A few
 of the librarians had noticeably worse p95 latencies than the others, and closer inspection revealed
 that they were receiving up to 4x more Store queries than some of the other librarians. We also
@@ -207,4 +209,83 @@ we found upon digging into the ordering (or lack thereof) of peers when being qu
 librarians's routing table. This change reduced Store request differential from ~4x down to ~2x, but
 it also reduced the latencies by at least 50%.
 
-  
+In trial 23, we tested [libri #166](https://github.com/drausin/libri/pull/166), which adjusts the 
+peer ordering in a routing table bucket to favor peers less frequently queried when they have been 
+queried almost as recently as more frequently peers. The intent was to more explicitly balance the 
+queries out across peers. The change had the intended effect, with Store requests more evenly 
+spread out across all librarians (though not perfectly, with one librarian receiving noticably 
+fewer requests). Latencies across all endpoints also appear to be a bit better. Unfortunately, we 
+see how RocksDB file operations disrupt especially Put and Store p95 latencies.
+
+In trial 24, we tested reducing the RocksDB memtable size to 256 MB
+([commit](https://github.com/drausin/libri/commit/774be6b6e48fac514df9f27c76f2354da5264828)), 
+thinking that it might replace bursty write operations with more regular (and smaller) ones, 
+reducing the impact of the worst of the writes on the p95 latencies. Unfortunately, this change
+just seemed to slightly reduce overall latency performance.
+
+In trial 25, we tested returning to a 512 MB memtable while keeping the write buffer size
+the same (64 MB) ([commit](https://github.com/drausin/libri/commit/07a2a97bba1c67f19a680ef2fb429834e217423f)), 
+thinking as in trial 24 that splitting the writes across more files would distribute the write 
+load more evenly over time. This change doesn't seem to have made much difference in the latency 
+performance, and we also noticed that three of the librarians (0, 4, 6) generally had slightly worse
+latencies than the other nodes and also all happened to be on the same node as the Grafana pod. It's
+possible that bursty CPU usage by Grafana (on period metric refreshes) takes away from the 
+librarians when they have high CPU needs (e.g., during RocksDB file writes). To avoid this possible
+contamination, we generally avoided having Grafana dashboards open when running future experiments.
+
+In trial 26, we doubled the load again to 1024K UDP and increased the experiment runtime to 60 
+minutes, meeting our target load of 1M+ UDP. We increased the librarian CPU from 250m to 400m and 
+memory from 3GB to 4GB. We also had to add "warm up" period of 30s to the experimenter 
+([#11](https://github.com/drausin/libri-experiments/pull/11)), otherwise sometimes a librarian 
+would get overwhelmed by the immediate volume of Store requests. Surprisingly, the latencies all 
+had only modest increases except the Put p95, which jumped and stayed above 500ms once the RocksDB 
+memtable started getting written to disk.
+
+In trial 27, we trial switching from 4x `n1-highmem-2` nodes to 2x `n1-highmem-4`, thinking that
+the 4 virtual CPUs available to each pod might help with some of the bursty CPU-intensive RocksDB 
+operations, taking better advantage of the 4x threads configured for RocksDB. Unfortunately, almost 
+every latency metric got worse over the course of the experiment. Perhaps this is due to more CPU
+contention between the pods on the same host, but that seems insufficient to explain the difference
+in the results from trial 26.
+
+In trial 28, we reverted back to 4x `n1-highmem-2` nodes and the original, non-"optimized" RocksDB 
+configuration from trial 23. These latencies were the best so far for 1024K UDP, though Put p95 
+still spiked up to 2000ms for a few minutes about 30 mins into the experiment. 
+
+In trial 29, we decided to take one more stab 
+([commit](https://github.com/drausin/libri/commit/f0f2b1ee60ba86a2621117c847c6b19327724175))
+at some RocksDB parameter optimization from the "Total ordered database, flash storage" section of 
+the [RocksDB Tuning Guide](https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide). While
+this change did succeed in lowering the peak of Put p95 from ~2000ms down to ~1750ms, it generally
+degraded the other latencies.   
+
+At this point, we decided to stop further optimization attempts and draw this experiment to a close.
+Our goal at the outset of this experiment was to have Put & Get p95s below 1000ms at 1M UDP. Over 
+the 60 minutes at 1024K UDP, the best latencies (from trial 28) are roughly
+- Get p95: 100-150ms
+- Put p95: 400-800ms w/ 10 total mins of "burst" above 1000ms
+- Get p50: 6-10ms
+- Put p50: 75-125ms
+
+### Discussion
+
+Other than the Put p95, these latencies are signficantly better than where we started with 1K UDP.
+Some of this improvement is likely just the benefit of a larger sample size at 1024K UDP vs. 1K, 
+since the 95th percentile of a much smaller sample of points often becomes something close to the 
+max of that sample. But over the course of these trials, we made a number of improvements that led
+us to these final numbers:
+- randomizing client balancer seed
+- basic RocksDB tuning 
+- using a single author connection instead of many to query librarians
+- librarian connection pooling
+- better peer ordering for Store queries and within the routing table buckets
+
+Future experiments and optimization will focus on 
+- longer (12, 24 hr) experiments
+- clusters with more librarians
+- impact of maintenance events like librarian restarts
+- further RocksDB tuning
+- larger distribution of document sizes (up to 32 MB)
+
+But for the time being, libri performance appears sufficiently good to handle the modest 
+initial load expected in the first 12 months of live deployment.   

@@ -16,11 +16,11 @@ cluster_host = "gcp"
 
 # librarians
 num_librarians = 8
-librarian_libri_version = "snapshot-07a2a97"
+librarian_libri_version = "snapshot-8b3f886"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
 librarian_cpu_limit = "400m"
-librarian_ram_limit = "4G"
+librarian_ram_limit = "5G"
 
 librarian_public_port_start = 30100
 librarian_local_port = 20100
