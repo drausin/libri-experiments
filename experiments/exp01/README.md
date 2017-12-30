@@ -1,4 +1,4 @@
-## exp01 - How does performance degrade with increasing user load?
+## exp01: How does performance degrade with increasing user load?
 
 What happens to libri network performance as user load increases? Network performance is measured
 primarily by metrics on the aggregate librarians:
@@ -7,9 +7,9 @@ primarily by metrics on the aggregate librarians:
 - Put/Get response times (p50, p95)
 - availability %
 
-Our goal over the course of this experiment was to achieve sub-second latency for Get and Put 
-requests at a million average users with reasonable resource usage (e.g., less than 1 CPU and 
-8 GB ram per librarian).
+Our goal over the course of this experiment was to achieve sub-second latency and 99.99% 
+availability for Get and Put requests at a million average users with reasonable resource usage 
+(e.g., less than 1 CPU and 8 GB RAM per librarian).
 
 ### Methods & Results
 
@@ -27,12 +27,6 @@ Each upload translates to 8 Put/Get queries:
 - 2x Put envelope (shared authors)
 - 2x Get envelope (shared authors)
 - 2x Get entry (shared authors)
-
-We first performed the 8 trials, doubling the UPD every trial, and observing primarily the 
-Get/Put p50 & p95 latencies and librarian CPU & memory usage. Each trial ran for 30 minutes. 
-The latencies and resources reported below are eyeballed from Grafana (via Prometheus metrics) 
-screenshots. We report roughly the highest value across all the librarians over the duration of
-the experiment. 
 
 We store the configuration and results of each trial in a separate directory containing the 
 following
@@ -95,7 +89,19 @@ At this point, we can start the user simulator
 kubectl create -f "${CLUSTER_DIR}/libri-sim.yml"
 ```
 
+Once the experiment was complete and all results were gathered, we cleaned everything up with
+```bash
+kubectl delete -f "${CLUSTER_DIR}/libri-sim.yml" -f "${CLUSTER_DIR}/libri.yml"
+terraform destroy ${CLUSTER_DIR}
+``` 
+
 #### Naive user load increases
+
+We first performed the 8 trials, doubling the UPD every trial, and observing primarily the 
+Get/Put p50 & p95 latencies and librarian CPU & memory usage. Each trial ran for 30 minutes. 
+The latencies and resources reported below are eyeballed from Grafana (via Prometheus metrics) 
+screenshots. We report roughly the highest value across all the librarians over the duration of
+the experiment. 
 
 The results of these 8 trials are given below.
 
@@ -136,9 +142,9 @@ facilitate further debugging and measurement
 After the initial trials showing experimentor and librarian memory usage growing linearly over time,
 we investigated some aspects of this memory usage at high UDP (128K & 256K).
 
-In trial 9, we used the profiling endpoint added in []libri #157](https://github.com/drausin/libri/pull/157)
+In **trial 9**, we used the profiling endpoint added in [libri #157](https://github.com/drausin/libri/pull/157)
 to get heap dumps from actively running librarians as their memory usage increased. We also tried
-increasing the log level to `ERROR` to reduce possible memory pressure due to logging.
+decreasing the log level to `ERROR` to reduce possible memory pressure due to logging.
 
 We got the heap dump from a single librarian via something like
 ```
@@ -149,12 +155,12 @@ go tool pprof librarians-1.heap.prof
 Suprisingly, the active heap was much less (~100-200 MB) than what was reported via Prometheus 
 metrics (which come from cadvisor via Kubernetes). After some investigation, we realized that the
 `container_memory_usage_bytes` cadvisor Prometheus metric measures both working set memory as well
-as page cache, whereas the heap dump excludes page cache (and possibly also memory managed in 
-RocksDB C library). We also found that change the log level to `ERROR`has no effect on the reported
+as page cache, whereas the heap dump excludes page cache (and also memory managed in RocksDB C 
+library). We also found that changing the log level to `ERROR`has no effect on the reported
 (by Prometheus) memory usage, indicating that logging doesn't seem to contribute significantly to 
 page cache.
 
-In trial 10, we bumped the UDP up to 256K and monitored the latencies and memory usage. For most of 
+In **trial 10**, we bumped the UDP up to 256K and monitored the latencies and memory usage. For most of 
 the experiment duration, we the cluster had reasonable Put & Get latencies (~500ms & 400ms for p95, 
 respectively), but at around 13:35, they started running out of page cache (see 
 [this Prometheus screenshot](trial10/img/Pod.MemoryPageCache.png)), and the latency performance 
@@ -163,14 +169,14 @@ decreases markedly, especially clearly in the p50s.
 At the end of the experiment, we realized that we still had the libri-experimenter CPU pod limit 
 set to 100m (i.e., 10% of node CPU), which was likely throttling the actual queries it could emit.
 
-In trial 11, we bumped the UDP to 512K and along with the experimenter limit up to 300m and 
+In **trial 11**, we bumped the UDP to 512K and along with the experimenter limit up to 300m and 
 librarian limits up to 200m and 3GB RAM. We saw, for the first time, significant performance 
 degradation, with multi-second p50 & p95s as well as a few librarian crashes and the first 
 observation of `Store` query errors from one of the librarians.   
 
 Given the importance of the page cache shown in trial 10 and the performance issues in trial 11, we
 were left thinking that the performance issues are likely due to our completely-untuned RocksDB 
-usage. The next set of experiments should focus on this area via the following:
+usage. The next set of experiments should focused on this area via the following:
 - moving the libri author library to avoid RocksDB altogether for its uploads and downloads (since 
 it's used as scratch storage anyway) and use an in-memory replacement
 - enable profiling on the experimenter to confirm that its memory usage isn't coming from anywhere 
@@ -182,7 +188,7 @@ for) to (perhaps ?) decrease write bottleneck from page cache to disk
     - optimizing for point lookups (with bloom filters and a block cache of 1GB)
     - (monitoring only) increasing stats dump to every 10 mins
      
-In trial 12, the experimenter authors used in-memory docSLDs (c.f., 
+In **trial 12**, the experimenter authors used in-memory docSLDs (c.f., 
 [libri #159](https://github.com/drausin/libri/pull/159)) with the profiler enabled (c.f., 
 [libri-experiments #8](https://github.com/drausin/libri-experiments/pull/8)), and we were able to 
 see as expected that the experimenter memory usage dropped to be (on average) below that of the 
@@ -205,12 +211,12 @@ Showing top 5 nodes out of 59
 ```
 As in trial 10, performance started degrading once the librarians started running out of page cache.
 
-In trial 13, we tried replacing the librarian spinning disks with SSDs (since RocksDB is optimized 
+In **trial 13**, we tried replacing the librarian spinning disks with SSDs (since RocksDB is optimized 
 for those), thinking perhaps that a disk throughput bottleneck was causing the librarians to use 
 more page cache than they should. This change ended up having little effect on the overall librarian
 memory usage, though perhaps the p50s were a bit better.
 
-In trial 14, we tried tweaking some of the RocksDB options (c.f., 
+In **trial 14**, we tried tweaking some of the RocksDB options (c.f., 
 [libri #160](https://github.com/drausin/libri/pull/160)), in particular 
 - 1 GB block cache
 - 32 K block size
@@ -224,30 +230,31 @@ pressure. These tweaks did improve p95 and p50 latencies compared to trial 13 as
 - Put p95: 400ms -> 150ms
 - Put p50: 100-200ms -> 40-60ms
 We omit the severe performance degradations caused by page cache exhaustion at the end when the 
-librarians ran out of their 3GB memory budget. We are glad to see these improvements, but continued 
-existence of the underlying memory usage issue indicates that RocksDB probably isn't the main 
-culprit. The other main culprit is probably grpc connections, so subsequent trials should look into
+librarians ran out of their 3GB memory budget. We were glad to see these improvements, but the 
+continued existence of the underlying memory usage issue indicates that RocksDB probably isn't the 
+main culprit. The other main culprit is probably grpc connections, so subsequent trials looked 
+into
 - setting `MaxConcurrentStreams` on the grpc server (as opposed to the unbounded default)
 - try just having a single author (with 100x more requests per day), since maybe the problem is just
 too many client connections to each librarian
 
-In trial 15, we set `MaxConcurrentStreams = 128` (c.f., 
+In **trial 15**, we set `MaxConcurrentStreams = 128` (c.f., 
 [libri #162](https://github.com/drausin/libri/pull/162)) and noticed that memory usage across
 librarians was more consistent, but it didn't really change the cumulative memory usage of either
 the experimenter or librarians.
 
-In trial 16, we used moved from 100 -> 1 authors but from 2560 -> 256000 uploads per author. This
+In **trial 16**, we used moved from 100 -> 1 authors but from 2560 -> 256000 uploads per author. This
 change completely solved the experimenter memory issue, with it now using ~50 MB RAM instead of 
-previously it's consumer more and more until it reached the limit.
+previously it's consuming more and more until it reached the limit.
 
-In trial 17, we bumped the librarian RAM limit up to 5 GB and ran the experimenter for 90 minutes, 
+In **trial 17**, we bumped the librarian RAM limit up to 5 GB and ran the experimenter for 90 minutes, 
 thinking that possibly the librarians just had steady-state memory usage higher than the 3 GB used
 previously. Unfortunately, the linear memory growth still occurred, and the librarians eventually
 hit the new memory limit.
 
-In trial 18, we tested [libri #163](https://github.com/drausin/libri/pull/163), which updated the
+In **trial 18**, we tested [libri #163](https://github.com/drausin/libri/pull/163), which updated the
 librarian peer connection handling to actively disconnect one of the connections when merging two
-peers that both have a connection. This hypothesis was that the librarian servers were leaking
+peers that both have a connection. Our hypothesis was that the librarian servers were leaking
 connections (i.e., creating redundant ones and not cleaning up existing ones) when peers were 
 being added to the routing table. Unfortunately, the change didn't have much/any effect on the
 librarian memory usage over the course of the experiment.
@@ -268,8 +275,8 @@ usage under control. Profiling a librarian a few times over the course of the ex
 With the librarian memory usage under control, we doubled our load up to 512K UDP in trial 21. A few
 of the librarians had noticeably worse p95 latencies than the others, and closer inspection revealed
 that they were receiving up to 4x more Store queries than some of the other librarians. We also
-observed periodic RocksDB file operations (e.g., compaction) to have a non-trivial effect on the p95
-latencies when they happen.
+observed periodic RocksDB file operations (e.g., flush & compaction) to have a non-trivial effect 
+on the p95 latencies when they happen.
 
 In trial 22, we tested [libri #165](https://github.com/drausin/libri/pull/165), which fixes a bug
 we found upon digging into the ordering (or lack thereof) of peers when being queried from a
@@ -278,11 +285,11 @@ it also reduced the latencies by at least 50%.
 
 In trial 23, we tested [libri #166](https://github.com/drausin/libri/pull/166), which adjusts the 
 peer ordering in a routing table bucket to favor peers less frequently queried when they have been 
-queried almost as recently as more frequently peers. The intent was to more explicitly balance the 
-queries out across peers. The change had the intended effect, with Store requests more evenly 
-spread out across all librarians (though not perfectly, with one librarian receiving noticably 
-fewer requests). Latencies across all endpoints also appear to be a bit better. Unfortunately, we 
-see how RocksDB file operations disrupt especially Put and Store p95 latencies.
+queried almost as recently as more frequently queried peers. The intent was to more explicitly 
+balance the queries out across peers. The change had the intended effect, with Store requests more 
+evenly spread out across all librarians (though not perfectly, with one librarian receiving 
+noticeably fewer requests). Latencies across all endpoints also appeared to be a bit better. 
+Unfortunately, we see how RocksDB file operations disrupt especially Put and Store p95 latencies.
 
 In trial 24, we tested reducing the RocksDB memtable size to 256 MB
 ([commit](https://github.com/drausin/libri/commit/774be6b6e48fac514df9f27c76f2354da5264828)), 
@@ -296,17 +303,17 @@ thinking as in trial 24 that splitting the writes across more files would distri
 load more evenly over time. This change doesn't seem to have made much difference in the latency 
 performance, and we also noticed that three of the librarians (0, 4, 6) generally had slightly worse
 latencies than the other nodes and also all happened to be on the same node as the Grafana pod. It's
-possible that bursty CPU usage by Grafana (on period metric refreshes) takes away from the 
+possible that bursty CPU usage by Grafana (on regular page/metric refreshes) takes away from the 
 librarians when they have high CPU needs (e.g., during RocksDB file writes). To avoid this possible
 contamination, we generally avoided having Grafana dashboards open when running future experiments.
 
 In trial 26, we doubled the load again to 1024K UDP and increased the experiment runtime to 60 
-minutes, meeting our target load of 1M+ UDP. We increased the librarian CPU from 250m to 400m and 
-memory from 3GB to 4GB. We also had to add "warm up" period of 30s to the experimenter 
-([#11](https://github.com/drausin/libri-experiments/pull/11)), otherwise sometimes a librarian 
-would get overwhelmed by the immediate volume of Store requests. Surprisingly, the latencies all 
-had only modest increases except the Put p95, which jumped and stayed above 500ms once the RocksDB 
-memtable started getting written to disk.
+minutes, meeting our target load of 1M+ UDP. We increased the librarian CPU limit from 250m to 400m 
+and memory limit from 3GB to 4GB. We also had to add "warm up" period of 30s to the experimenter 
+([libri-experiments #11](https://github.com/drausin/libri-experiments/pull/11)), otherwise 
+sometimes a librarian would get overwhelmed by the immediate volume of Store requests. Surprisingly, 
+the latencies all had only modest increases except the Put p95, which jumped and stayed above 500ms 
+once the RocksDB memtable started getting written to disk.
 
 In trial 27, we trial switching from 4x `n1-highmem-2` nodes to 2x `n1-highmem-4`, thinking that
 the 4 virtual CPUs available to each pod might help with some of the bursty CPU-intensive RocksDB 
@@ -315,9 +322,9 @@ every latency metric got worse over the course of the experiment. Perhaps this i
 contention between the pods on the same host, but that seems insufficient to explain the difference
 in the results from trial 26.
 
-In trial 28, we reverted back to 4x `n1-highmem-2` nodes and the original, non-"optimized" RocksDB 
-configuration from trial 23. These latencies were the best so far for 1024K UDP, though Put p95 
-still spiked up to 2000ms for a few minutes about 30 mins into the experiment. 
+In trial 28, we reverted back to 4x `n1-highmem-2` nodes and the previous RocksDB configuration from 
+trial 23. These latencies were the best so far for 1024K UDP, though Put p95 still spiked up to 
+2000ms for a few minutes about 30 mins into the experiment. 
 
 In trial 29, we decided to take one more stab 
 ([commit](https://github.com/drausin/libri/commit/f0f2b1ee60ba86a2621117c847c6b19327724175))
@@ -327,20 +334,22 @@ this change did succeed in lowering the peak of Put p95 from ~2000ms down to ~17
 degraded the other latencies.   
 
 At this point, we decided to stop further optimization attempts and draw this experiment to a close.
-Our goal at the outset of this experiment was to have Put & Get p95s below 1000ms at 1M UDP. Over 
-the 60 minutes at 1024K UDP, the best latencies (from trial 28) are roughly
+Our goal at the outset of this experiment was to have Put & Get p95s below 1000ms and 99.99%+ 
+availability at 1M UDP. Over the 60 minutes at 1024K UDP, the best latencies (from trial 28) are 
+roughly
 - Get p95: 100-150ms
-- Put p95: 400-800ms w/ 10 total mins of "burst" above 1000ms
+- Put p95: 400-800ms w/ 10 (or 60) total mins of "burst" above 1000ms
 - Get p50: 6-10ms
 - Put p50: 75-125ms
+and availability was 100%.
 
 ### Discussion
 
-Other than the Put p95, these latencies are signficantly better than where we started with 1K UDP.
-Some of this improvement is likely just the benefit of a larger sample size at 1024K UDP vs. 1K, 
-since the 95th percentile of a much smaller sample of points often becomes something close to the 
-max of that sample. But over the course of these trials, we made a number of improvements that led
-us to these final numbers:
+Other than the Put p95, these trial 28 latencies are signficantly better than where we started with 
+1K UDP. Some of this improvement is likely just the benefit of a larger sample size at 1024K UDP 
+vs. 1K, since the 95th percentile of a much smaller sample of points often becomes something close 
+to the max of that sample. But over the course of these trials, we made a number of improvements 
+that led us to these final numbers:
 - randomizing client balancer seed
 - basic RocksDB tuning 
 - using a single author connection instead of many to query librarians
@@ -348,7 +357,7 @@ us to these final numbers:
 - better peer ordering for Store queries and within the routing table buckets
 
 Future experiments and optimization will focus on 
-- longer (12, 24 hr) experiments
+- longer (6, 12, 24 hr) experiments
 - clusters with more librarians
 - impact of maintenance events like librarian restarts
 - further RocksDB tuning
