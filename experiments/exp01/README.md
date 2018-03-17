@@ -137,10 +137,10 @@ facilitate further debugging and measurement
 - aggregate queries per second (QPS) across all librarian endpoints
 
 
-#### Memory performance at high UDP
+#### Memory performance at high UPD
 
 After the initial trials showing experimentor and librarian memory usage growing linearly over time,
-we investigated some aspects of this memory usage at high UDP (128K & 256K).
+we investigated some aspects of this memory usage at high UPD (128K & 256K).
 
 In **trial 9**, we used the profiling endpoint added in [libri #157](https://github.com/drausin/libri/pull/157)
 to get heap dumps from actively running librarians as their memory usage increased. We also tried
@@ -160,7 +160,7 @@ library). We also found that changing the log level to `ERROR`has no effect on t
 (by Prometheus) memory usage, indicating that logging doesn't seem to contribute significantly to 
 page cache.
 
-In **trial 10**, we bumped the UDP up to 256K and monitored the latencies and memory usage. For most of 
+In **trial 10**, we bumped the UPD up to 256K and monitored the latencies and memory usage. For most of 
 the experiment duration, we the cluster had reasonable Put & Get latencies (~500ms & 400ms for p95, 
 respectively), but at around 13:35, they started running out of page cache (see 
 [this Prometheus screenshot](trial10/img/Pod.MemoryPageCache.png)), and the latency performance 
@@ -169,7 +169,7 @@ decreases markedly, especially clearly in the p50s.
 At the end of the experiment, we realized that we still had the libri-experimenter CPU pod limit 
 set to 100m (i.e., 10% of node CPU), which was likely throttling the actual queries it could emit.
 
-In **trial 11**, we bumped the UDP to 512K and along with the experimenter limit up to 300m and 
+In **trial 11**, we bumped the UPD to 512K and along with the experimenter limit up to 300m and 
 librarian limits up to 200m and 3GB RAM. We saw, for the first time, significant performance 
 degradation, with multi-second p50 & p95s as well as a few librarian crashes and the first 
 observation of `Store` query errors from one of the librarians.   
@@ -270,9 +270,9 @@ usage under control. Profiling a librarian a few times over the course of the ex
 8x goroutines for each of the 8 different types of goroutines run by a grpc connection. (See 
 [librarians-0.goroutine.prof](trial20/librarians-0.goroutine.prof).)
 
-#### High UDP performance tuning
+#### High UPD performance tuning
 
-With the librarian memory usage under control, we doubled our load up to 512K UDP in trial 21. A few
+With the librarian memory usage under control, we doubled our load up to 512K UPD in trial 21. A few
 of the librarians had noticeably worse p95 latencies than the others, and closer inspection revealed
 that they were receiving up to 4x more Store queries than some of the other librarians. We also
 observed periodic RocksDB file operations (e.g., flush & compaction) to have a non-trivial effect 
@@ -307,8 +307,8 @@ possible that bursty CPU usage by Grafana (on regular page/metric refreshes) tak
 librarians when they have high CPU needs (e.g., during RocksDB file writes). To avoid this possible
 contamination, we generally avoided having Grafana dashboards open when running future experiments.
 
-In trial 26, we doubled the load again to 1024K UDP and increased the experiment runtime to 60 
-minutes, meeting our target load of 1M+ UDP. We increased the librarian CPU limit from 250m to 400m 
+In trial 26, we doubled the load again to 1024K UPD and increased the experiment runtime to 60 
+minutes, meeting our target load of 1M+ UPD. We increased the librarian CPU limit from 250m to 400m 
 and memory limit from 3GB to 4GB. We also had to add "warm up" period of 30s to the experimenter 
 ([libri-experiments #11](https://github.com/drausin/libri-experiments/pull/11)), otherwise 
 sometimes a librarian would get overwhelmed by the immediate volume of Store requests. Surprisingly, 
@@ -323,7 +323,7 @@ contention between the pods on the same host, but that seems insufficient to exp
 in the results from trial 26.
 
 In trial 28, we reverted back to 4x `n1-highmem-2` nodes and the previous RocksDB configuration from 
-trial 23. These latencies were the best so far for 1024K UDP, though Put p95 still spiked up to 
+trial 23. These latencies were the best so far for 1024K UPD, though Put p95 still spiked up to 
 2000ms for a few minutes about 30 mins into the experiment. 
 
 In trial 29, we decided to take one more stab 
@@ -335,7 +335,7 @@ degraded the other latencies.
 
 At this point, we decided to stop further optimization attempts and draw this experiment to a close.
 Our goal at the outset of this experiment was to have Put & Get p95s below 1000ms and 99.99%+ 
-availability at 1M UDP. Over the 60 minutes at 1024K UDP, the best latencies (from trial 28) are 
+availability at 1M UPD. Over the 60 minutes at 1024K UPD, the best latencies (from trial 28) are 
 roughly
 - Get p95: 100-150ms
 - Put p95: 400-800ms w/ 10 (or 60) total mins of "burst" above 1000ms
@@ -346,7 +346,7 @@ and availability was 100%.
 ### Discussion
 
 Other than the Put p95, these trial 28 latencies are signficantly better than where we started with 
-1K UDP. Some of this improvement is likely just the benefit of a larger sample size at 1024K UDP 
+1K UPD. Some of this improvement is likely just the benefit of a larger sample size at 1024K UPD 
 vs. 1K, since the 95th percentile of a much smaller sample of points often becomes something close 
 to the max of that sample. But over the course of these trials, we made a number of improvements 
 that led us to these final numbers:
