@@ -11,7 +11,6 @@ import (
 
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/author/keychain"
-	"github.com/drausin/libri/libri/common/logging"
 	erand "golang.org/x/exp/rand"
 	"gonum.org/v1/gonum/stat/distuv"
 )

@@ -18,7 +18,6 @@ import (
 
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/common/id"
-	"github.com/drausin/libri/libri/common/logging"
 	"github.com/drausin/libri/libri/librarian/api"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

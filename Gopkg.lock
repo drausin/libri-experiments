@@ -45,8 +45,38 @@
 
 [[projects]]
   name = "github.com/drausin/libri"
-  packages = ["libri/author","libri/author/io/comp","libri/author/io/enc","libri/author/io/pack","libri/author/io/page","libri/author/io/print","libri/author/io/publish","libri/author/io/ship","libri/author/keychain","libri/common/db","libri/common/ecid","libri/common/errors","libri/common/id","libri/common/logging","libri/common/storage","libri/common/subscribe","libri/librarian/api","libri/librarian/client","libri/librarian/server","libri/librarian/server/introduce","libri/librarian/server/peer","libri/librarian/server/replicate","libri/librarian/server/routing","libri/librarian/server/search","libri/librarian/server/storage","libri/librarian/server/store","libri/librarian/server/verify"]
-  revision = "ad6ffb074a58d15516e932b0c92fe88536d878e6"
+  packages = [
+    "libri/author",
+    "libri/author/io/comp",
+    "libri/author/io/enc",
+    "libri/author/io/pack",
+    "libri/author/io/page",
+    "libri/author/io/print",
+    "libri/author/io/publish",
+    "libri/author/io/ship",
+    "libri/author/keychain",
+    "libri/common/db",
+    "libri/common/ecid",
+    "libri/common/errors",
+    "libri/common/id",
+    "libri/common/logging",
+    "libri/common/parse",
+    "libri/common/storage",
+    "libri/common/subscribe",
+    "libri/librarian/api",
+    "libri/librarian/client",
+    "libri/librarian/server",
+    "libri/librarian/server/goodwill",
+    "libri/librarian/server/introduce",
+    "libri/librarian/server/peer",
+    "libri/librarian/server/replicate",
+    "libri/librarian/server/routing",
+    "libri/librarian/server/search",
+    "libri/librarian/server/storage",
+    "libri/librarian/server/store",
+    "libri/librarian/server/verify"
+  ]
+  revision = "094c72dfc4054920760e46004b2f8a508ef63f8a"
 
 [[projects]]
   branch = "master"
@@ -56,7 +86,25 @@
 
 [[projects]]
   name = "github.com/ethereum/go-ethereum"
-  packages = [".","accounts","accounts/keystore","common","common/hexutil","common/math","common/mclock","core/types","crypto","crypto/randentropy","crypto/secp256k1","crypto/sha3","event","log","params","rlp","trie"]
+  packages = [
+    ".",
+    "accounts",
+    "accounts/keystore",
+    "common",
+    "common/hexutil",
+    "common/math",
+    "common/mclock",
+    "core/types",
+    "crypto",
+    "crypto/randentropy",
+    "crypto/secp256k1",
+    "crypto/sha3",
+    "event",
+    "log",
+    "params",
+    "rlp",
+    "trie"
+  ]
   revision = "4bb3c89d44e372e6a9ab85a8be0c9345265c763a"
   version = "v1.7.3"
 
@@ -75,7 +123,14 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["proto","protoc-gen-go/descriptor","ptypes","ptypes/any","ptypes/duration","ptypes/timestamp"]
+  packages = [
+    "proto",
+    "protoc-gen-go/descriptor",
+    "ptypes",
+    "ptypes/any",
+    "ptypes/duration",
+    "ptypes/timestamp"
+  ]
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
@@ -87,13 +142,26 @@
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/golang-lru"
-  packages = [".","simplelru"]
+  packages = [
+    ".",
+    "simplelru"
+  ]
   revision = "0a025b7e63adc15a622f29b0b2c4c3848243bbf6"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token"
+  ]
   revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
@@ -110,7 +178,10 @@
 
 [[projects]]
   name = "github.com/klauspost/compress"
-  packages = ["flate","gzip"]
+  packages = [
+    "flate",
+    "gzip"
+  ]
   revision = "6c8db69c4b49dd4df1fff66996cf556176d0b9bf"
   version = "v1.2.1"
 
@@ -176,7 +247,10 @@
 
 [[projects]]
   name = "github.com/prometheus/client_golang"
-  packages = ["prometheus","prometheus/promhttp"]
+  packages = [
+    "prometheus",
+    "prometheus/promhttp"
+  ]
   revision = "c5b7fccd204277076155f10851dad72b76a49317"
   version = "v0.8.0"
 
@@ -189,13 +263,20 @@
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/common"
-  packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","model"]
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model"
+  ]
   revision = "2e54d0b93cba2fd133edc32211dcc32c06ef72ca"
 
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/procfs"
-  packages = [".","xfs"]
+  packages = [
+    ".",
+    "xfs"
+  ]
   revision = "f98634e408857669d61064b283c4cde240622865"
 
 [[projects]]
@@ -218,7 +299,10 @@
 
 [[projects]]
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
+  packages = [
+    ".",
+    "mem"
+  ]
   revision = "8d919cbe7e2627e417f3e45c3c0e489a5b7e2536"
   version = "v1.0.0"
 
@@ -289,14 +373,25 @@
 
 [[projects]]
   name = "go.uber.org/zap"
-  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore"
+  ]
   revision = "35aad584952c3e7020db7b839f6b102de6271f89"
   version = "v1.7.1"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["hkdf","pbkdf2","scrypt"]
+  packages = [
+    "hkdf",
+    "pbkdf2",
+    "scrypt"
+  ]
   revision = "94eea52f7b742c7cbe0b03b22f0c4c8631ece122"
 
 [[projects]]
@@ -308,7 +403,15 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
+  packages = [
+    "context",
+    "http2",
+    "http2/hpack",
+    "idna",
+    "internal/timeseries",
+    "lex/httplex",
+    "trace"
+  ]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
@@ -320,13 +423,47 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
+  ]
   revision = "d5a9226ed7dd70cade6ccae9d37517fe14dd9fee"
 
 [[projects]]
   branch = "master"
   name = "gonum.org/v1/gonum"
-  packages = ["blas","blas/blas64","blas/gonum","floats","internal/asm/c128","internal/asm/f32","internal/asm/f64","internal/math32","lapack","lapack/gonum","lapack/lapack64","mat","mathext","mathext/internal/amos","mathext/internal/cephes","mathext/internal/gonum","stat","stat/distuv"]
+  packages = [
+    "blas",
+    "blas/blas64",
+    "blas/gonum",
+    "floats",
+    "internal/asm/c128",
+    "internal/asm/f32",
+    "internal/asm/f64",
+    "internal/math32",
+    "lapack",
+    "lapack/gonum",
+    "lapack/lapack64",
+    "mat",
+    "mathext",
+    "mathext/internal/amos",
+    "mathext/internal/cephes",
+    "mathext/internal/gonum",
+    "stat",
+    "stat/distuv"
+  ]
   revision = "ad5995341f50f70b5f9667a5409d7c1d1005ab14"
 
 [[projects]]
@@ -337,7 +474,33 @@
 
 [[projects]]
   name = "google.golang.org/grpc"
-  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","health","health/grpc_health_v1","internal","keepalive","metadata","naming","peer","reflection","reflection/grpc_reflection_v1alpha","resolver","resolver/dns","resolver/passthrough","stats","status","tap","transport"]
+  packages = [
+    ".",
+    "balancer",
+    "balancer/roundrobin",
+    "codes",
+    "connectivity",
+    "credentials",
+    "encoding",
+    "grpclb/grpc_lb_v1/messages",
+    "grpclog",
+    "health",
+    "health/grpc_health_v1",
+    "internal",
+    "keepalive",
+    "metadata",
+    "naming",
+    "peer",
+    "reflection",
+    "reflection/grpc_reflection_v1alpha",
+    "resolver",
+    "resolver/dns",
+    "resolver/passthrough",
+    "stats",
+    "status",
+    "tap",
+    "transport"
+  ]
   revision = "e687fa4e6424368ece6e4fe727cea2c806a0fcb4"
   version = "v1.8.2"
 
@@ -362,6 +525,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "405606d5423883d332c3d8da2fc51d6c7840ab73f9e6fbd501fa7f43ef35903e"
+  inputs-digest = "ef30d78bc79f67af932bc494ea48cb0b242caada42bad1a7786d8430cf4b5fdf"
   solver-name = "gps-cdcl"
   solver-version = 1
