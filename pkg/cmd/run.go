@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/drausin/libri-experiments/pkg/sim"
-	"github.com/drausin/libri/libri/librarian/server"
+	"github.com/drausin/libri/libri/common/parse"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -65,7 +65,7 @@ func init() {
 }
 
 func runExperiment() error {
-	librarianAddrs, err := server.ParseAddrs(viper.GetStringSlice(librariansFlag))
+	librarianAddrs, err := parse.Addrs(viper.GetStringSlice(librariansFlag))
 	if err != nil {
 		return err
 	}
