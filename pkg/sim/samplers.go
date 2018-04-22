@@ -43,7 +43,7 @@ func newDirectory(
 
 	authors := make([]*author.Author, nAuthors)
 	keys := make([]keychain.GetterSampler, nAuthors)
-	logger := server.NewDevLogger(server.GetLogLevel(logLevelStr))
+	logger := logging.NewDevLogger(logging.GetLogLevel(logLevelStr))
 
 	configs := newAuthorConfigs(dataDir, librarianAddrs, nAuthors, logLevelStr)
 	nWorkers := 8

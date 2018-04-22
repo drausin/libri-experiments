@@ -337,7 +337,7 @@ func maybePanic(err error) {
 func newAuthorConfigs(
 	dataDir string, librarianAddrs []*net.TCPAddr, nAuthors uint, logLevelStr string,
 ) []*author.Config {
-	logLevel := server.GetLogLevel(logLevelStr)
+	logLevel := logging.GetLogLevel(logLevelStr)
 	authorConfigs := make([]*author.Config, nAuthors)
 	for c := uint(0); c < nAuthors; c++ {
 		authorDataDir := filepath.Join(dataDir, fmt.Sprintf("author-%d", c))

@@ -18,7 +18,7 @@ jobs:
           name: Install RocksDB
           command: |
             # hack to make sure RocksDB runs on CircleCI machines
-            if [[ $(md5sum /usr/local/lib/librocksdb.a | awk '{print $1}') != "26a5079e826332dbb31520054032f460" ]]; then
+            if [[ $(md5sum /usr/local/lib/librocksdb.a | awk '{print $1}') != "b27ba30f8c681a7ca1f7920d34045554" ]]; then
               ./build/install-rocksdb.sh
             fi
       - run:
