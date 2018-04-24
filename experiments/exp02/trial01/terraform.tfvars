@@ -1,6 +1,6 @@
 # author sim
 libri_exp_version = "snapshot-b5bda27"
-duration = "60m"
+duration = "90m"
 
 num_authors = 1
 docs_per_day = 256000
