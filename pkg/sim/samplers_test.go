@@ -44,7 +44,8 @@ func TestUploadEventSamplerImplSample(t *testing.T) {
 	s := uploadEventSamplerImpl{
 		nSharesPerUpload: nSharesPerUpload,
 		content:          cs,
-		authors:          d,
+		upAuthors:        d,
+		downAuthors:      d,
 	}
 	e := s.sample()
 	assert.NotNil(t, e.content)
