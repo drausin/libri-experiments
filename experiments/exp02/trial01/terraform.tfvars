@@ -13,6 +13,7 @@ content_size_kb_gamma_shape = 1.5
 content_size_kb_gamma_rate = 0.00588
 
 cluster_host = "gcp"
+cluster_admin_user = "experimenter@libri-170711.iam.gserviceaccount.com"
 
 # librarians
 num_librarians = 8

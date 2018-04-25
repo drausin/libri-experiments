@@ -16,12 +16,12 @@ cluster_host = "gcp"
 cluster_admin_user = "experimenter@libri-170711.iam.gserviceaccount.com"
 
 # librarians
-num_librarians = 16
+num_librarians = 64
 librarian_libri_version = "snapshot-094c72d"
-librarian_disk_size_gb = 10
+librarian_disk_size_gb = 5
 librarian_disk_type = "pd-ssd"
-librarian_cpu_limit = "250m"
-librarian_ram_limit = "4G"
+librarian_cpu_limit = "100m"
+librarian_ram_limit = "2G"
 
 librarian_public_port_start = 30100
 librarian_local_port = 20100
@@ -32,5 +32,5 @@ grafana_port = 30300
 prometheus_port = 30090
 
 # Kubernetes cluster
-num_cluster_nodes = 8
-cluster_node_machine_type = "n1-highmem-2"  # 2 CPUs & 13 GB RAM each
+num_cluster_nodes = 6
+cluster_node_machine_type = "n1-highmem-4"  # 4 CPUs & 26 GB RAM each
