@@ -16,10 +16,11 @@ var queries = map[string]string{
 
 func main() {
 	queryRangeURL := "http://prometheus.default.svc.cluster.local:9090/api/v1/query_range"
-	startTime := "2018-04-25T02:30:00Z"
-	endTime := "2018-04-25T03:30:00Z"
+	startTime := "2018-04-29T01:35:00Z"
+	endTime := "2018-04-29T02:35:00Z"
 	step := "1m"
-	//client := http.Client{Timeout: 20 * time.Second}
+	podName := "grafana-5bcc55f46f-zpkpf"
+	outDir := "../trial07/data"
 
 	for label, query := range queries {
 		rq, err := http.NewRequest(http.MethodGet, queryRangeURL, nil)
@@ -31,23 +32,8 @@ func main() {
 		q.Add("start", startTime)
 		q.Add("end", endTime)
 		q.Add("step", step)
-		log.Printf("%s : %s?%s\n", label, rq.URL.String(), q.Encode())
-
-		//rp, err := client.Do(rq)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//bodyBytes, err := ioutil.ReadAll(rp.Body)
-		//rp.Body.Close()
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//filename := label + ".json"
-		//err = ioutil.WriteFile(filename, bodyBytes, 0644)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//log.Printf("wrote %s\n", filename)
+		fmt.Printf("kubectl exec %s -- curl '%s?%s' | gzip > %s/%s.json.gz\n",
+			podName, rq.URL.String(), q.Encode(), outDir, label)
 	}
 }
 
