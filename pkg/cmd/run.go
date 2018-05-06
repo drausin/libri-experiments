@@ -107,7 +107,7 @@ func getLibrarians() ([]*net.TCPAddr, []*net.TCPAddr, error) {
 		return nil, nil, errors.New("either neither or both up & down librarians must be " +
 			"specified")
 	}
-	if hasLibs != (hasUpLibs && hasDownLibs) {
+	if hasLibs == (hasUpLibs && hasDownLibs) {
 		return nil, nil, errors.New("either librarians or up + down librarians must be " +
 			"specified")
 	}
