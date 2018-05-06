@@ -1,5 +1,5 @@
 # author sim
-libri_exp_version = "snapshot-bb975b8"
+libri_exp_version = "snapshot-b5bda27"
 duration = "1h"
 
 num_authors = 1
@@ -17,7 +17,7 @@ cluster_admin_user = "experimenter@libri-170711.iam.gserviceaccount.com"
 
 # librarians
 num_librarians = 32
-librarian_libri_version = "snapshot-2cd68f0"
+librarian_libri_version = "snapshot-2cd68f"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
 librarian_cpu_limit = "200m"
