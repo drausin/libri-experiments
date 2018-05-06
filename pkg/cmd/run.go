@@ -41,9 +41,9 @@ func init() {
 
 	runCmd.Flags().StringSliceP(librariansFlag, "a", nil,
 		"comma-separated addresses (IPv4:Port) of librarian(s)")
-	runCmd.Flags().StringSliceP(upLibrariansFlag, "a", nil,
+	runCmd.Flags().StringSlice(upLibrariansFlag, nil,
 		"comma-separated addresses (IPv4:Port) of upload librarian(s)")
-	runCmd.Flags().StringSliceP(downLibrariansFlag, "a", nil,
+	runCmd.Flags().StringSlice(downLibrariansFlag, nil,
 		"comma-separated addresses (IPv4:Port) of download librarian(s)")
 	runCmd.Flags().Duration(durationFlag, sim.DefaultDuration,
 		"experiment duration")
