@@ -16,11 +16,11 @@ var queries = map[string]string{
 
 func main() {
 	queryRangeURL := "http://prometheus.default.svc.cluster.local:9090/api/v1/query_range"
-	startTime := "2018-05-05T01:10:00Z"
-	endTime := "2018-05-06T02:10:00Z"
+	startTime := "2018-05-06T19:20:00Z"
+	endTime := "2018-05-06T20:20:00Z"
 	step := "1m"
-	podName := "grafana-5bcc55f46f-zx4wf"
-	outDir := "../trial11/data"
+	podName := "grafana-5bcc55f46f-l8bnz"
+	outDir := "../trial15/data"
 
 	for label, query := range queries {
 		rq, err := http.NewRequest(http.MethodGet, queryRangeURL, nil)
