@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: libri-experimenter
+spec:
+  restartPolicy: Never
+  volumes:
+  - name: data
+    emptyDir: {}
+  containers:
+  - name: libri-experimenter
+    image: daedalus2718/libri-exp:snapshot-e0f3a7b
+    args: [
+      "run",
+      "--upLibrarians",             "librarians-0.libri.default.svc.cluster.local:20100,librarians-1.libri.default.svc.cluster.local:20100,librarians-2.libri.default.svc.cluster.local:20100,librarians-3.libri.default.svc.cluster.local:20100",
+      "--downLibrarians",           "librarians-28.libri.default.svc.cluster.local:20100,librarians-29.libri.default.svc.cluster.local:20100,librarians-30.libri.default.svc.cluster.local:20100,librarians-31.libri.default.svc.cluster.local:20100",
+      "--duration",                 "60m",
+      "--numAuthors",               "1",
+      "--docsPerDay",               "256000",
+      "--contentSizeKBGammaShape",  "1.5",
+      "--contentSizeKBGammaRate",   "0.00588",
+      "--sharesPerUpload",          "2",
+      "--nUploaders",               "128",
+      "--nDownloaders",             "128",
+      "--profile",
+    ]
+    env:
+    - name: GODEBUG         # ensure we use the pure Go (rather than CGO) DNS
+      value: netdns=go      # resolver (see https://golang.org/src/net/net.go)
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    resources:
+      limits:
+        memory: 5G
+        cpu: 400m
