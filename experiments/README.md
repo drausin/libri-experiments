@@ -2,6 +2,7 @@
 
 This directory contains sets of experiments run against libri clusters:
 - [exp01](exp01): How does performance degrade with increasing user load?
+- [exp02](exp02): What are the request/response balances between well-behaved peers?
 
 Each experiment is oriented around a high-level question or goal and contains individual trials
 that represent discrete steps toward that question/goal. In this experiment documentation, we 
