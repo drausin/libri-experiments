@@ -137,17 +137,16 @@ type uploadEventSampler interface {
 type uploadEventSamplerImpl struct {
 	nSharesPerUpload uint
 	content          contentSampler
-	upAuthors        directory
-	downAuthors      directory
+	authors          directory
 }
 
 func (s *uploadEventSamplerImpl) sample() *uploadEvent {
-	from, _ := s.upAuthors.sample()
+	from, _ := s.authors.sample()
 	shareWith := make([]*ecdsa.PublicKey, s.nSharesPerUpload)
 	for i := range shareWith {
 		// just sample a random author, not really representative of real world, but for now gets
 		// us the Share and Download load we want
-		_, shareWith[i] = s.downAuthors.sample()
+		_, shareWith[i] = s.authors.sample()
 	}
 	return &uploadEvent{
 		content:   s.content.sample(),

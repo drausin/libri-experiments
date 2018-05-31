@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"net"
-
 	"github.com/drausin/libri-experiments/pkg/sim"
 	"github.com/drausin/libri/libri/common/parse"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -22,8 +19,6 @@ const (
 	nUploadersFlag              = "nUploaders"
 	nDownloadersFlag            = "nDownloaders"
 	librariansFlag              = "librarians"
-	upLibrariansFlag            = "upLibrarians"
-	downLibrariansFlag          = "downLibrarians"
 	profileFlag                 = "profile"
 )
 
@@ -41,10 +36,6 @@ func init() {
 
 	runCmd.Flags().StringSliceP(librariansFlag, "a", nil,
 		"comma-separated addresses (IPv4:Port) of librarian(s)")
-	runCmd.Flags().StringSliceP(upLibrariansFlag, "a", nil,
-		"comma-separated addresses (IPv4:Port) of upload librarian(s)")
-	runCmd.Flags().StringSliceP(downLibrariansFlag, "a", nil,
-		"comma-separated addresses (IPv4:Port) of download librarian(s)")
 	runCmd.Flags().Duration(durationFlag, sim.DefaultDuration,
 		"experiment duration")
 	runCmd.Flags().Uint(numAuthorsFlag, sim.DefaultNAuthors,
@@ -74,47 +65,16 @@ func init() {
 }
 
 func runExperiment() error {
-	upLibAddrs, downLibAddrs, err := getLibrarians()
+	librarianAddrs, err := parse.Addrs(viper.GetStringSlice(librariansFlag))
 	if err != nil {
 		return err
 	}
 	dataDir := viper.GetString(dataDirFlag)
 	params := getParameters()
-	runner := sim.NewRunner(params, dataDir, upLibAddrs, downLibAddrs)
+	runner := sim.NewRunner(params, dataDir, librarianAddrs)
 
 	runner.Run()
 	return nil
-}
-
-func getLibrarians() ([]*net.TCPAddr, []*net.TCPAddr, error) {
-	libAddrs, err := parse.Addrs(viper.GetStringSlice(librariansFlag))
-	if err != nil {
-		return nil, nil, err
-	}
-	hasLibs := len(libAddrs) > 0
-	upLibAddrs, err := parse.Addrs(viper.GetStringSlice(upLibrariansFlag))
-	if err != nil {
-		return nil, nil, err
-	}
-	hasUpLibs := len(upLibAddrs) > 0
-	downLibAddrs, err := parse.Addrs(viper.GetStringSlice(downLibrariansFlag))
-	if err != nil {
-		return nil, nil, err
-	}
-	hasDownLibs := len(downLibAddrs) > 0
-
-	if hasUpLibs != hasDownLibs {
-		return nil, nil, errors.New("either neither or both up & down librarians must be " +
-			"specified")
-	}
-	if hasLibs == (hasUpLibs && hasDownLibs) {
-		return nil, nil, errors.New("either librarians or up + down librarians must be " +
-			"specified")
-	}
-	if hasLibs {
-		return libAddrs, libAddrs, nil
-	}
-	return upLibAddrs, downLibAddrs, nil
 }
 
 func getParameters() *sim.Parameters {
