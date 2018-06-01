@@ -16,8 +16,6 @@ import (
 	"syscall"
 	"time"
 
-	"path"
-
 	"github.com/drausin/libri/libri/author"
 	"github.com/drausin/libri/libri/common/id"
 	"github.com/drausin/libri/libri/common/logging"
@@ -34,7 +32,7 @@ const (
 	// DefaultDuration is the default time for the experiment to run
 	DefaultDuration = 1 * time.Hour
 
-	// DefaultNAuthors is the default number of upAuthors to use in the experiment.
+	// DefaultNAuthors is the default number of authors to use in the experiment.
 	DefaultNAuthors = uint(1000)
 
 	// DefaultDocsPerDay is the default number of documents to assume each author uploads per day.
@@ -105,7 +103,7 @@ type downloadEvent struct {
 // Runner runs experiments.
 type Runner struct {
 	params         *Parameters
-	downAuthors    directory
+	authors        directory
 	nextUploadWait durationSampler
 	downloadWait   durationSampler
 	upDocs         uploadEventSampler
@@ -118,27 +116,21 @@ type Runner struct {
 }
 
 // NewRunner creates a new experiment Runner.
-func NewRunner(
-	params *Parameters, dataDir string, upLibAddrs, downLibAddrs []*net.TCPAddr,
-) *Runner {
+func NewRunner(params *Parameters, dataDir string, librarianAddrs []*net.TCPAddr) *Runner {
 	downloadWait := &uniformDurationSampler{
 		min: params.DownloadWaitMin,
 		max: params.DownloadWaitMax,
 		rng: rand.New(rand.NewSource(0)),
 	}
-	upDataDir, downDataDir := path.Join(dataDir, "up"), path.Join(dataDir, "down")
-	upAuthors := newDirectory(rand.New(rand.NewSource(0)), upDataDir, upLibAddrs,
-		params.NAuthors, params.LogLevel)
-	downAuthors := newDirectory(rand.New(rand.NewSource(1)), downDataDir, downLibAddrs,
-		params.NAuthors, params.LogLevel)
+	authors := newDirectory(rand.New(rand.NewSource(0)), dataDir, librarianAddrs, params.NAuthors,
+		params.LogLevel)
 	docSizeSampler := newGammaContentSampler(
 		rand.New(rand.NewSource(0)),
 		params.ContentSizeKBGammaShape,
 		params.ContentSizeKBGammaRate,
 	)
 	upDocs := &uploadEventSamplerImpl{
-		upAuthors:        upAuthors,
-		downAuthors:      downAuthors,
+		authors:          authors,
 		nSharesPerUpload: params.SharesPerUpload,
 		content:          docSizeSampler,
 	}
@@ -147,7 +139,7 @@ func NewRunner(
 
 	return &Runner{
 		params:         params,
-		downAuthors:    downAuthors,
+		authors:        authors,
 		nextUploadWait: newExponentialDurationSampler(rand.New(rand.NewSource(0)), uploadWaitMS),
 		downloadWait:   downloadWait,
 		upDocs:         upDocs,
@@ -256,7 +248,7 @@ func (r *Runner) doUploads(wg *sync.WaitGroup) {
 				continue
 			}
 			r.toDownload <- &downloadEvent{
-				to:     r.downAuthors.get(withPub),
+				to:     r.authors.get(withPub),
 				envKey: shareEnvKey,
 			}
 		}

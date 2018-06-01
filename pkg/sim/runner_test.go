@@ -31,7 +31,7 @@ func TestRunner_RunStop(t *testing.T) {
 	assert.Nil(t, err)
 	defer os.RemoveAll(dataDir)
 	librarianAddrs := []*net.TCPAddr{{IP: net.ParseIP("192.168.1.1"), Port: 20100}}
-	r := NewRunner(params, dataDir, librarianAddrs, librarianAddrs)
+	r := NewRunner(params, dataDir, librarianAddrs)
 	r.querier = &fixedQuerier{
 		uploaded: make(map[string]io.Reader),
 		rng:      rng,
