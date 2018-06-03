@@ -21,8 +21,8 @@ num_librarians = 8  # <- independent variable 2
 librarian_libri_version = "snapshot-fa7e6f2"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
-librarian_cpu_limit = "750m"
-librarian_ram_limit = "5G"
+librarian_cpu_limit = "500m"
+librarian_ram_limit = "4G"
 
 librarian_public_port_start = 30100
 librarian_local_port = 20100
@@ -38,4 +38,4 @@ prometheus_cpu_limit = "250m"
 
 # Kubernetes cluster
 num_cluster_nodes = 4
-cluster_node_machine_type = "n1-highmem-4"  # 2 CPUs, 6.5 GB RAM
+cluster_node_machine_type = "n1-highmem-2"  # 2 CPUs, 6.5 GB RAM

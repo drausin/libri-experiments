@@ -31,4 +31,4 @@ spec:
     resources:
       limits:
         memory: 1G
-        cpu: 400m
+        cpu: 1000m

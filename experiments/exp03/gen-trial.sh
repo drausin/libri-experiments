@@ -24,13 +24,16 @@ go run cluster.go init gcp \
     --bucket "${GCP_BUCKET}" \
     --gcpProject "${GCP_PROJECT}"
 
+echo "wrote standard experiment flags to ${CLUSTER_DIR}/terraform.tfvars; edit manually and press any key to continue"
+read
+
 pushd "${DIR}/../../deploy/cloud" >/dev/null 2>&1
 go run gen.go -e "${CLUSTER_DIR}/terraform.tfvars" -d ${CLUSTER_DIR}
+popd >/dev/null 2>&1
 popd >/dev/null 2>&1
 
 echo -e "cluster ${CLUSTER_NAME} initialized successfully; run the following to start trial\n"
 echo "  pushd ${LIBRI_CLOUD_DIR} && go run cluster.go apply --clusterDir ${CLUSTER_DIR}"
 echo -e '\nonce all the librarians are up, start the simulator with\n'
-echo -e "kubectl apply -f ${CLUSTER_DIR}/libri-sim.yml\n"
+echo -e "   kubectl apply -f ${CLUSTER_DIR}/libri-sim.yml\n"
 
-popd >/dev/null 2>&1

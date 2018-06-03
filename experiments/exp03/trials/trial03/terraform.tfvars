@@ -6,7 +6,7 @@ libri_exp_version = "snapshot-b5bda27"
 duration = "60m"
 
 num_authors = 1
-docs_per_day = 256000  # <- independent variable 1
+docs_per_day = 1024000  # <- independent variable 1
 shares_per_upload = 2
 num_uploaders = 256
 num_downloaders = 256
