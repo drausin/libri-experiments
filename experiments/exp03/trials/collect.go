@@ -33,9 +33,7 @@ var (
 	outDir         = ""
 	queryRangeURL  = "http://prometheus.default.svc.cluster.local:9090/api/v1/query"
 	cmd            = &cobra.Command{
-		Use:   "collect",
-		Short: "operate a librarian server, a peer in the libri network",
-		Long:  `TODO (drausin) add longer description and examples here`,
+		Use: "collect",
 		Run: func(cmd *cobra.Command, args []string) {
 			queries := make(map[string]string)
 			appendQueries(queries, bytesStoredQueries)
@@ -43,6 +41,7 @@ var (
 			appendQueries(queries, latencyQueries)
 			appendQueries(queries, qpsQueries)
 
+			fmt.Printf("mkdir -p %s\n", outDir)
 			for label, query := range queries {
 				rq, err := http.NewRequest(http.MethodGet, queryRangeURL, nil)
 				if err != nil {

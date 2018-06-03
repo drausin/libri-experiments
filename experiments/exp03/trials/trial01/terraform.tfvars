@@ -2,7 +2,7 @@ cluster_host = "gcp"
 cluster_admin_user = "experimenter@libri-170711.iam.gserviceaccount.com"
 
 # author sim
-libri_exp_version = "snapshot-6b887b6"
+libri_exp_version = "snapshot-b5bda27"
 duration = "60m"
 
 num_authors = 1
@@ -17,8 +17,8 @@ content_size_kb_gamma_rate = 0.00588
 
 
 # librarians
-num_librarians = 8
-librarian_libri_version = "0.4.0"
+num_librarians = 8  # <- independent variable 2
+librarian_libri_version = "snapshot-fa7e6f2"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
 librarian_cpu_limit = "250m"

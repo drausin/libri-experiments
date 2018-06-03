@@ -432,7 +432,7 @@ spec:
     spec:
       containers:
       - name: libriarian
-        image: daedalus2718/libri:0.4.0
+        image: daedalus2718/libri:snapshot-fa7e6f2
         args: [
           "librarian", "start",
           "--nSubscriptions", "2",

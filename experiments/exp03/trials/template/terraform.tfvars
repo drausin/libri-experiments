@@ -18,7 +18,7 @@ content_size_kb_gamma_rate = 0.00588
 
 # librarians
 num_librarians = 8  # <- independent variable 2
-librarian_libri_version = "0.4.0"
+librarian_libri_version = "snapshot-fa7e6f2"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
 librarian_cpu_limit = "250m"
