@@ -17,7 +17,7 @@ content_size_kb_gamma_rate = 0.00588
 
 
 # librarians
-num_librarians = 8  # <- independent variable 2
+num_librarians = 16  # <- independent variable 2
 librarian_libri_version = "snapshot-fa7e6f2"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
@@ -37,5 +37,5 @@ grafana_cpu_limit = "100m"
 prometheus_cpu_limit = "250m"
 
 # Kubernetes cluster
-num_cluster_nodes = 4
+num_cluster_nodes = 5
 cluster_node_machine_type = "n1-highmem-4"  # 4 CPUs, 13 GB RAM

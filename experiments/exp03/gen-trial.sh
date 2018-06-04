@@ -33,7 +33,7 @@ popd >/dev/null 2>&1
 popd >/dev/null 2>&1
 
 echo -e "cluster ${CLUSTER_NAME} initialized successfully; run the following to start trial\n"
-echo "  pushd ${LIBRI_CLOUD_DIR} && go run cluster.go apply --clusterDir ${CLUSTER_DIR}"
+echo "  pushd ${LIBRI_CLOUD_DIR} && go run cluster.go apply --clusterDir ${CLUSTER_DIR} && popd"
 echo -e '\nonce all the librarians are up, start the simulator with\n'
 echo -e "   kubectl apply -f ${CLUSTER_DIR}/libri-sim.yml\n"
 

@@ -6,7 +6,7 @@ libri_exp_version = "snapshot-b5bda27"
 duration = "60m"
 
 num_authors = 1
-docs_per_day = 256000  # <- independent variable 1
+docs_per_day = 64000  # <- independent variable 1
 shares_per_upload = 2
 num_uploaders = 256
 num_downloaders = 256
@@ -17,7 +17,7 @@ content_size_kb_gamma_rate = 0.00588
 
 
 # librarians
-num_librarians = 8  # <- independent variable 2
+num_librarians = 16  # <- independent variable 2
 librarian_libri_version = "snapshot-fa7e6f2"
 librarian_disk_size_gb = 10
 librarian_disk_type = "pd-ssd"
