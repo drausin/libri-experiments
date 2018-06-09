@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: libri-experimenter
+spec:
+  restartPolicy: Never
+  volumes:
+  - name: data
+    emptyDir: {}
+  containers:
+  - name: libri-experimenter
+    image: daedalus2718/libri-exp:snapshot-b5bda27
+    args: [
+      "run",
+      "--librarians",               "librarians-0.libri.default.svc.cluster.local:20100,librarians-1.libri.default.svc.cluster.local:20100,librarians-2.libri.default.svc.cluster.local:20100,librarians-3.libri.default.svc.cluster.local:20100,librarians-4.libri.default.svc.cluster.local:20100,librarians-5.libri.default.svc.cluster.local:20100,librarians-6.libri.default.svc.cluster.local:20100,librarians-7.libri.default.svc.cluster.local:20100,librarians-8.libri.default.svc.cluster.local:20100,librarians-9.libri.default.svc.cluster.local:20100,librarians-10.libri.default.svc.cluster.local:20100,librarians-11.libri.default.svc.cluster.local:20100,librarians-12.libri.default.svc.cluster.local:20100,librarians-13.libri.default.svc.cluster.local:20100,librarians-14.libri.default.svc.cluster.local:20100,librarians-15.libri.default.svc.cluster.local:20100,librarians-16.libri.default.svc.cluster.local:20100,librarians-17.libri.default.svc.cluster.local:20100,librarians-18.libri.default.svc.cluster.local:20100,librarians-19.libri.default.svc.cluster.local:20100,librarians-20.libri.default.svc.cluster.local:20100,librarians-21.libri.default.svc.cluster.local:20100,librarians-22.libri.default.svc.cluster.local:20100,librarians-23.libri.default.svc.cluster.local:20100,librarians-24.libri.default.svc.cluster.local:20100,librarians-25.libri.default.svc.cluster.local:20100,librarians-26.libri.default.svc.cluster.local:20100,librarians-27.libri.default.svc.cluster.local:20100,librarians-28.libri.default.svc.cluster.local:20100,librarians-29.libri.default.svc.cluster.local:20100,librarians-30.libri.default.svc.cluster.local:20100,librarians-31.libri.default.svc.cluster.local:20100",
+      "--duration",                 "60m",
+      "--numAuthors",               "1",
+      "--docsPerDay",               "256000",
+      "--contentSizeKBGammaShape",  "1.5",
+      "--contentSizeKBGammaRate",   "0.00588",
+      "--sharesPerUpload",          "2",
+      "--nUploaders",               "256",
+      "--nDownloaders",             "256",
+    ]
+    env:
+    - name: GODEBUG         # ensure we use the pure Go (rather than CGO) DNS
+      value: netdns=go      # resolver (see https://golang.org/src/net/net.go)
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    resources:
+      limits:
+        memory: 1G
+        cpu: 1000m
