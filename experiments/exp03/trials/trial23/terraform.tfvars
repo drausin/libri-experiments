@@ -37,5 +37,5 @@ grafana_cpu_limit = "100m"
 prometheus_cpu_limit = "250m"
 
 # Kubernetes cluster
-num_cluster_nodes = 2
-cluster_node_machine_type = "n1-highmem-8"  # 8 CPUs, 52 GB RAM each
+num_cluster_nodes = 4
+cluster_node_machine_type = "n1-highmem-4"  # 4 CPUs, 26 GB RAM each

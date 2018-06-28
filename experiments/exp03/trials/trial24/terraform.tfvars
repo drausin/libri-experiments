@@ -6,7 +6,7 @@ libri_exp_version = "snapshot-b5bda27"
 duration = "60m"
 
 num_authors = 1
-docs_per_day = 256000  # <- independent variable 1
+docs_per_day = 64000  # <- independent variable 1
 shares_per_upload = 2
 num_uploaders = 256
 num_downloaders = 256
@@ -37,5 +37,5 @@ grafana_cpu_limit = "100m"
 prometheus_cpu_limit = "250m"
 
 # Kubernetes cluster
-num_cluster_nodes = 2
-cluster_node_machine_type = "n1-highmem-8"  # 8 CPUs, 52 GB RAM each
+num_cluster_nodes = 4
+cluster_node_machine_type = "n1-highmem-4"  # 4 CPUs, 26 GB RAM each
