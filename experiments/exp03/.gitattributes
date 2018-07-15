@@ -1,0 +1,2 @@
+analysis/*.ipynb filter=lfs diff=lfs merge=lfs -text
+analysis/figs/* filter=lfs diff=lfs merge=lfs -text
