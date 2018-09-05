@@ -120,8 +120,8 @@ type exponentialDurationSampler struct {
 func newExponentialDurationSampler(rng *rand.Rand, meanMS float64) durationSampler {
 	return &exponentialDurationSampler{
 		innerMS: &distuv.Exponential{
-			Rate:   1 / meanMS, // mean = 1 / rate
-			Source: erand.New(erand.NewSource(rng.Uint64())),
+			Rate: 1 / meanMS, // mean = 1 / rate
+			Src:  erand.New(erand.NewSource(rng.Uint64())),
 		},
 	}
 }
@@ -168,9 +168,9 @@ type gammaContentSampler struct {
 func newGammaContentSampler(rng *rand.Rand, shape float64, rate float64) *gammaContentSampler {
 	return &gammaContentSampler{
 		sizeSampler: &distuv.Gamma{
-			Alpha:  shape,
-			Beta:   rate,
-			Source: erand.New(erand.NewSource(rng.Uint64())),
+			Alpha: shape,
+			Beta:  rate,
+			Src:   erand.New(erand.NewSource(rng.Uint64())),
 		},
 		rng: rng,
 	}
